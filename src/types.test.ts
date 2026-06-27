@@ -29,7 +29,6 @@ o.......
 
 })
 
-
 it('position', () => {
     expect(Debug.Position(Fen.InitialPosition)).toEqual(`
 rnbqkbnr
