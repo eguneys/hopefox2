@@ -4,13 +4,16 @@ import { Debug, Move, Position, Uci } from "./types.js"
 export class DebugMove {
     static San = (pos: Position, move: Move) => {
         const from_role = pos.roleOn(move.from)!
+        const to = pos.pieceOn(move.to)
 
         const pos_after = Position.clone(pos)
         pos_after.makeMove(move)
 
+        const isCapture = to !== undefined
+
         const isCheck = CheckFinder.isCheck(pos_after)
 
-        return `${Debug.SanRole(from_role)}${move.to}${isCheck ? '+' : ''}`
+        return `${Debug.SanRole(from_role)}${isCapture ? 'x' : ''}${move.to}${isCheck ? '+' : ''}`
     }
 
 
@@ -18,6 +21,7 @@ export class DebugMove {
         let result = []
         let ipos = Position.clone(pos)
         for (let move of moves) {
+            if (move.isNone()) continue
             result.push(DebugMove.San(ipos, move))
             ipos.makeMove(move)
         }

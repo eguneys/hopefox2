@@ -12,6 +12,10 @@ it.only('basic usage', () => {
     let filter = new ScriptFilter(`
 rook_t *Checks king_o *becomes rook2
 rook3_t *Blocks Check *becomes rook4
+rook2 *Captures rook4 *becomes rook5
+      .Checks king
+queen *Captures rook5 *becomes queen2
+bishop *Captures queen2 *becomes bishop2
 `.trim())
 
     let res = filter.filterPuzzles(puzzles100, [])

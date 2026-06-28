@@ -250,6 +250,15 @@ export class Parser {
         }
     }
 
+
+    private getTokenLastBecomes(line: number) {
+        let tokens = this.lines.get(line)!
+
+        return tokens[tokens.length - 1]
+    }
+
+
+
     private eatDotOrStar(line: number, column: number) {
         let dot = this.getNextTokenAfter(line, column)
         if (!dot) {
@@ -331,6 +340,38 @@ export class Parser {
         for (let line = dot.line - 1; line >= 0; line--) {
             let between = this.getTokenBetween(line, dot.begin_column)
 
+            if (between && between.kind === TokenType.Star) {
+                let from = this.getTokenLastBecomes(line)
+                let action = this.getNextTokenAfter(dot.line, dot.end_column)
+                if (!action || action.kind !== TokenType.Symbol) {
+                    throw `expecting symbol after ${dot.kind === TokenType.Dot ? 'dot' : 'star'} Line:${dot.line} Column:${dot.end_column}`
+                }
+
+
+                let to = this.getNextTokenAfter(action.line, action.end_column)
+
+                if (!to || to.kind !== TokenType.Symbol) {
+                    throw `expecting symbol after action Line:${action.line} Column:${action.begin_column}`
+                }
+
+                let binder = this.eatOptionalBinder(to.line, to.end_column)
+                let and = binder ? this.getNextTokenAfter(binder.line, binder.end_column) : undefined
+
+                let next = and ?? to
+
+                let becomes_binder = this.eatOptionalBecomes(next.line, next.end_column)
+
+                let becomes = becomes_binder ? this.getNextTokenAfter(becomes_binder.line, becomes_binder.end_column) : undefined
+
+                return {
+                    from,
+                    action,
+                    to,
+                    and,
+                    becomes,
+                }
+            }
+
             if (between && between.kind === TokenType.Symbol) {
                 let from = between
                 let action = this.getNextTokenAfter(dot.line, dot.end_column)
@@ -355,7 +396,7 @@ export class Parser {
                 let becomes = becomes_binder ? this.getNextTokenAfter(becomes_binder.line, becomes_binder.end_column) : undefined
 
                 return {
-                    from: between,
+                    from,
                     action,
                     to,
                     and,

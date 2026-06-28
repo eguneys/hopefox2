@@ -6,12 +6,85 @@ import * as Attacks from './attacks.js'
 
 class MatchFilters {
     static checks = (ins: Instruction, history: History, slice: Slice) => {
-        const From = history.table.getColumn(ins.from.symbol!)
-        const To = history.table.getColumn(ins.to.symbol!)
+        const from_symbol = ins.from.symbol!
+        const Check_symbol = fix_symbol_checks_to_check(ins.action.symbol!)
+        const checked_symbol = ins.to.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const Checked = history.table.getColumn(checked_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_checked = Checked[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_checked2 = bb_checked.bitand(SymbolBitboard.square(position, checked_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_checked = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+
+                const bb_checked3 = bb_checked2.bitand(aa_checked)
+
+                for (let sq_checked of bb_checked3) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(checked_symbol, Bitboard.fromSquare(sq_checked))
+                    history.table.setLastRow(Check_symbol, Attacks.rayBetweenFromTo(sq_from, sq_checked))
+
+                    history.nodes.appendChild(off, Move.None)
+                }
+            }
+        }
+
     }
 }
 
 class MatchActions {
+
+    static captures = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const captured_symbol = ins.to.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const Captured = history.table.getColumn(captured_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_captured = Captured[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_captured2 = bb_captured.bitand(SymbolBitboard.square(position, captured_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+
+                const bb_to2 = bb_captured2.bitand(aa_to)
+
+
+                for (let sq_to of bb_to2) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(captured_symbol, Bitboard.fromSquare(sq_to))
+                    history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
+
+                    let move = Move.normal(sq_from, sq_to)
+                    history.nodes.appendChild(off, move)
+                }
+            }
+        }
+    }
+
+
     static blocks = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const check_symbol = ins.to.symbol!
@@ -26,8 +99,6 @@ class MatchActions {
 
             const bb_from = From[off]
             const bb_check = Check[off]
-
-            console.log(check_symbol)
 
             const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
 
@@ -181,6 +252,11 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
         case 'Blocks': {
             if (ins.becomes) {
                 MatchActions.blocks(ins, history, slice)
+            }
+        } break
+        case 'Captures': {
+            if (ins.becomes) {
+                MatchActions.captures(ins, history, slice)
             }
         }
     }
