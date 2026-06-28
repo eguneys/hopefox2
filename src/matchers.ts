@@ -118,9 +118,9 @@ class SymbolBitboard {
             }
         }
 
-        if (symbol.props.includes('_t')) {
+        if (symbol.props.includes('t')) {
             result = result.bitand(position.bb_turn())
-        } else if (symbol.props.includes('_o')) {
+        } else if (symbol.props.includes('o')) {
             result = result.bitand(position.bb_opponent())
         }
 

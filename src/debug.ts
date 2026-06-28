@@ -1,5 +1,5 @@
 import { CheckFinder } from "./check.js"
-import { Debug, Move, Position } from "./types.js"
+import { Debug, Move, Position, Uci } from "./types.js"
 
 export class DebugMove {
     static San = (pos: Position, move: Move) => {
@@ -18,6 +18,17 @@ export class DebugMove {
         let result = []
         let ipos = Position.clone(pos)
         for (let move of moves) {
+            result.push(DebugMove.San(ipos, move))
+            ipos.makeMove(move)
+        }
+        return result
+    }
+
+    static ucisAsSans = (pos: Position, ucis: string[]) => {
+        let result = []
+        let ipos = Position.clone(pos)
+        for (let uci of ucis) {
+            let move = Uci.parse(uci, ipos)
             result.push(DebugMove.San(ipos, move))
             ipos.makeMove(move)
         }

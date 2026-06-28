@@ -6,16 +6,19 @@ import fs from 'node:fs'
 import { DebugParser } from './types.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
 
-it('basic usage', () => {
-
+it.only('basic usage', () => {
 
     let filter = new ScriptFilter(`
-rook *Checks king *becomes rook2
-`)
+rook_t *Checks king_o *becomes rook2
+rook3  *Blocks Check *becomes rook4
+`.trim())
 
     let res = filter.filterPuzzles(puzzles, [])
 
+    const negative = res.filter(_ => _.negative)
     res = res.filter(_ => _.exact_solution)
+
+    console.log(negative[0].preview)
 
 })
 

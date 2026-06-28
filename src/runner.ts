@@ -96,7 +96,14 @@ export class ScriptFilter {
 
         let { moves, preview } = this.runner.runOnPosition(pos.position)
 
-        let result = new Bucket(preview)
+        let fullPreview = ''
+
+        fullPreview += `https://lichess.org/training/${pos.id}\n`
+        fullPreview += `[${DebugMove.ucisAsSans(pos.position, pos.solution).join(' ')}]\n`
+
+        fullPreview += preview
+
+        let result = new Bucket(fullPreview)
 
         if (moves.length === 0) {
             result.negative = true

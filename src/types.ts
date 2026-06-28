@@ -18,9 +18,8 @@ export const Squares: Square[] = Ranks.flatMap(rank => Files.map(file => `${file
 
 export const Directions = ['up', 'down', 'left', 'right', 'up-left', 'up-right', 'down-left', 'down-right']
 export const KnightDirections = ['up2-left', 'up2-right', 'down2-left', 'down2-right', 'up-left2', 'up-right2', 'down-left2', 'down-right2']
-export const PawnDirections = ['forward', 'backward', 'forward2', 'backward2', 'side-left', 'side-right']
+export const PawnDirections = ['forward', 'backward', 'forward2', 'backward2', 'side-left', 'side-right', 'capture-left', 'capture-right']
 export const PieceDirections = ['queen', 'king', 'black-pawn', 'white-pawn', 'knight', 'bishop', 'rook']
-
 
 export const KingZones = ['white-king-home', 'black-king-home', 'white-queen-home', 'black-queen-home']
 
