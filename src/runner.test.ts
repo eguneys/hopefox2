@@ -7,7 +7,7 @@ import { DebugParser } from './types.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
 let puzzles100 = puzzles.slice(0, 10)
 
-it.only('basic usage', () => {
+it('basic usage', () => {
 
     let filter = new ScriptFilter(`
 rook_t *Checks king_o *becomes rook2

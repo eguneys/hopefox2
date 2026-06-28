@@ -1,3 +1,4 @@
+import { fix_symbol_checks_to_check } from "./matchers.js";
 import { Symbol, Instruction } from "./parser.js";
 import { Bitboard, Move, Position } from "./types.js";
 
@@ -9,7 +10,7 @@ export class Table {
         let result = new Table()
 
         for (let symbol of symbols) {
-            result.addColumn(symbol)
+            result.addColumn(fix_symbol_checks_to_check(symbol))
         }
         result.addZeroRow()
         return result

@@ -263,7 +263,7 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
 }
 
 
-function fix_symbol_checks_to_check(Checks: Symbol): Symbol {
+export function fix_symbol_checks_to_check(Checks: Symbol): Symbol {
     if (Checks.name === 'Checks') {
         return {
             id: Checks.id,
