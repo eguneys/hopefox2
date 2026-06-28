@@ -268,3 +268,19 @@ export function pieceCheck(square: Square, occupied: Bitboard, direction: PieceD
     }
     throw `bad piece direction ${direction}`
 }
+
+export function directionFromTo(from: Square, to: Square) {
+    if (from[0] === to[0]) {
+        return Ranks.indexOf(from[1]) < Ranks.indexOf(to[1]) ? 'up' : 'down'
+    } else if (from[1] === to[1]) {
+        return Files.indexOf(from[0]) < Files.indexOf(to[0]) ? 'right' : 'left'
+    } else if (Files.indexOf(from[0]) < Files.indexOf(to[0])) {
+        return Ranks.indexOf(from[1]) < Ranks.indexOf(to[1]) ? 'up-right' : 'down-right'
+    } else {
+        return Ranks.indexOf(from[1]) < Ranks.indexOf(to[1]) ? 'up-left' : 'down-left'
+    }
+}
+
+export function rayBetweenFromTo(from: Square, to: Square) {
+    return rayHit(from, Bitboard.fromSquare(to), directionFromTo(from, to)).unset(to)
+}

@@ -12,8 +12,49 @@ class MatchFilters {
 }
 
 class MatchActions {
+    static blocks = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const check_symbol = ins.to.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const Check = history.table.getColumn(check_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_check = Check[off]
+
+            console.log(check_symbol)
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+                const bb_block = bb_check.bitand(aa_to)
+
+                for (let sq_block of bb_block) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_block))
+
+                    let move = Move.normal(sq_from, sq_block)
+                    history.nodes.appendChild(off, move)
+                }
+            }
+        }
+
+
+    }
+
+
     static checks = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
+        const Check_symbol = fix_symbol_checks_to_check(ins.action.symbol!)
         const checked_symbol = ins.to.symbol!
         const becomes_symbol = ins.becomes!.symbol!
         const From = history.table.getColumn(from_symbol)
@@ -46,7 +87,7 @@ class MatchActions {
                         history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
                         history.table.setLastRow(checked_symbol, Bitboard.fromSquare(sq_checked))
                         history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
-
+                        history.table.setLastRow(Check_symbol, Attacks.rayBetweenFromTo(sq_to, sq_checked))
 
                         let move = Move.normal(sq_from, sq_to)
                         history.nodes.appendChild(off, move)
@@ -136,6 +177,23 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
             } else {
                 MatchFilters.checks(ins, history, slice)
             }
+        } break
+        case 'Blocks': {
+            if (ins.becomes) {
+                MatchActions.blocks(ins, history, slice)
+            }
         }
     }
+}
+
+
+function fix_symbol_checks_to_check(Checks: Symbol): Symbol {
+    if (Checks.name === 'Checks') {
+        return {
+            id: Checks.id,
+            name: 'Check',
+            props: Checks.props
+        }
+    }
+    return Checks
 }

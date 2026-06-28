@@ -42,7 +42,7 @@ export class ScriptRunner {
             if (i > 1) preview += '\n'
             preview += `${i++}: `
             for (let moves2 of movesSlice) {
-                preview += `{${DebugMove.movesAsSans(this.history.position, moves2)}}`
+                preview += `{${DebugMove.movesAsSans(this.history.position, moves2).join(' ')}}`
             }
 
         }
