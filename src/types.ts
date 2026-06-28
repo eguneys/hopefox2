@@ -39,17 +39,17 @@ export type PromotionRole = typeof PromotionRoles[number]
 export type Piece = `${Color}-${Role}`
 
 export function squareToIndex(square: Square) {
-    const file = Files.indexOf(square[0])
-    const rank = Ranks.indexOf(square[1])
+    const file = Files.indexOf(square[0]!)
+    const rank = Ranks.indexOf(square[1]!)
     return rank * 8 + file
 }
 
 export function king_distance(from: Square, to: Square) {
-    const from_file = Files.indexOf(from[0])
-    const to_file = Files.indexOf(to[0])
+    const from_file = Files.indexOf(from[0]!)
+    const to_file = Files.indexOf(to[0]!)
 
-    const from_rank = Ranks.indexOf(from[0])
-    const to_rank = Ranks.indexOf(to[0])
+    const from_rank = Ranks.indexOf(from[0]!)
+    const to_rank = Ranks.indexOf(to[0]!)
 
     return Math.max(Math.abs(from_file - to_file), Math.abs(from_rank - to_rank))
 }
@@ -418,7 +418,7 @@ export class Fen {
         let [board, color, castling] = fen.split(' ')
 
         let irank = 0
-        for (let files of board.split('/')) {
+        for (let files of board!.split('/')) {
             let ifile = 0
             for (let char of files) {
                 const piece = Fen.parsePiece(char)
