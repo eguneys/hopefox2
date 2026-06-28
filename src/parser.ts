@@ -9,7 +9,7 @@ export enum TokenType {
 const Binders = ['and', 'to', 'through', 'becomes']
 type Binders = typeof Binders[number]
 
-type Symbol = {
+export type Symbol = {
     name: string
     id: string
     props: string

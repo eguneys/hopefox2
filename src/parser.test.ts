@@ -24,6 +24,6 @@ it('parses', () => {
     let parser = new Parser('bishop *Captures king2 *becomes bishop81')
     let res = parser.parse()
 
-    console.log(res)
+    expect(res.length).toBe(1)
 
 })

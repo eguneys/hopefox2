@@ -1,16 +1,47 @@
 import { CsvPuzzle } from "./db.js";
-import { Position } from "./types.js";
+import { History, Nodes, Slice, Table } from "./history.js";
+import { matchInstruction } from "./matchers.js";
+import { Instruction, Parser } from "./parser.js";
+import { Debug, Position } from "./types.js";
 
-class ScriptRunner {
+export class ScriptRunner {
+
+    history: History
+
+    private constructor(instructions: Instruction[]) {
+        this.history = new History(instructions)
+    }
 
     static parse(script: string) {
-        return new ScriptRunner()
+        let parser = new Parser(script)
+        return new ScriptRunner(parser.parse())
     }
 
     runOnPosition(position: Position) {
 
+        let slices: Slice[] = [{ off: 0, len: 1 }]
+
+        for (let ins of this.history.program) {
+            let off = this.history.nodes.length
+            matchInstruction(ins, this.history, off)
+            let len = this.history.nodes.length - off
+            slices.push({ off, len })
+        }
+
         let moves: string[] = []
         let preview = ''
+
+        let i = 1
+        for (let slice of slices.slice(1)) {
+            let movesSlice = this.history.getSlice(slice)
+
+            if (i > 1) preview += '\n'
+            preview += `${i++}: `
+            for (let ms of movesSlice) {
+                preview += `{${Debug.movesAsSans(this.history.position, ms)}}`
+            }
+
+        }
 
         return { moves, preview }
     }
@@ -29,10 +60,16 @@ class Bucket {
 
 
     get exact_moves() {
+        if (this.shorter || !this.exact_length) {
+            return false
+        }
         return this.moves_diverge_at === undefined
     }
 
     get exact_solution() {
+        if (this.longer || !this.exact_length) {
+            return false
+        }
         return this.solution_diverge_at === undefined
     }
 

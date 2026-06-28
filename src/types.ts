@@ -136,6 +136,8 @@ export class Bitboard {
     static get G8(): Bitboard { return Bitboard.fromSquare('g8') }
     static get H8(): Bitboard { return Bitboard.fromSquare('h8') }
 
+    static clone = (other: Bitboard) => new Bitboard(other.lo, other.hi)
+
     constructor(public lo: number, public hi: number) { }
 
     has(sq: Square) {
@@ -191,7 +193,20 @@ export class Position {
     bb_king: Bitboard
     turn: Color
 
-    static Zero = () => new Position()
+    static get Zero() { return new Position() }
+
+    static clone = (other: Position) => {
+        let res = new Position()
+        res.bb_white = Bitboard.clone(other.bb_white)
+        res.bb_pawn = Bitboard.clone(other.bb_pawn)
+        res.bb_bishop = Bitboard.clone(other.bb_bishop)
+        res.bb_rook = Bitboard.clone(other.bb_rook)
+        res.bb_queen = Bitboard.clone(other.bb_queen)
+        res.bb_knight = Bitboard.clone(other.bb_knight)
+        res.bb_king = Bitboard.clone(other.bb_king)
+        res.turn = other.turn
+        return res
+    }
 
     private constructor() {
         this.bb_white = Bitboard.Zero
@@ -403,6 +418,54 @@ export class Debug {
             case 'black-queen': return 'q'
         }
     }
+
+    static movesAsSans = (pos: Position, moves: Move[]) => {
+        return 'Nf3'
+    }
+}
+
+export class DebugParser {
+    static Position = (str: string, turn: Color = 'white'): Position => {
+        str = str.trim()
+        let result = Position.Zero
+
+        result.turn = turn
+
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                let char = str[i * 8 + j]!
+
+                let piece = DebugParser.Piece(char)
+
+                if (piece) {
+                    const file = Files[j]
+                    const rank = Ranks[i]
+                    const square = `${file}${rank}`
+                    result.addPiece(square, piece)
+                }
+            }
+        }
+
+
+        return result
+    }
+
+    static Piece = (char: string): Piece | undefined => {
+        switch (char) {
+            case 'P': return 'white-pawn'
+            case 'B': return 'white-bishop'
+            case 'N': return 'white-knight'
+            case 'R': return 'white-rook'
+            case 'Q': return 'white-queen'
+            case 'K': return 'white-king'
+            case 'p': return 'black-pawn'
+            case 'b': return 'black-bishop'
+            case 'n': return 'black-knight'
+            case 'r': return 'black-rook'
+            case 'q': return 'black-queen'
+            case 'k': return 'black-king'
+        }
+    }
 }
 
 export type FenString = string
@@ -413,7 +476,7 @@ export class Fen {
     static get InitialPosition() { return Fen.parse(Fen.Initial) }
 
     static parse(fen: FenString): Position {
-        const position = Position.Zero()
+        const position = Position.Zero
 
         let [board, color, castling] = fen.split(' ')
 
