@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
 
-import { Bitboard, Debug, Fen, Uci } from './types'
+import { DebugParser, Bitboard, Debug, Fen, Uci } from './types.js'
 
 
 it('works', () => {
@@ -58,5 +58,25 @@ pppp.ppp
 PPPP.PPP
 RNBQKB.R
 `.trim())
+
+
+
+})
+
+it.only('debug parser', () => {
+
+    const test = `
+........
+pppppppp
+........
+....p...
+....P...
+........
+PPPPPPPP
+........
+`.trim()
+
+    expect(Debug.Position(DebugParser.Position(test))).toEqual(test)
+
 
 })

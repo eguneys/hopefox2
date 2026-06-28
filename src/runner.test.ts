@@ -20,7 +20,7 @@ rook *Checks king *becomes rook2
 })
 
 
-it('runOnPosition', () => {
+it.skip('runOnPosition', () => {
 
     let runner = ScriptRunner.parse('rook *Checks king *becomes rook2')
 

@@ -1,5 +1,5 @@
 import { CsvPuzzle } from "./db.js";
-import { History, Nodes, Slice, Table } from "./history.js";
+import { History, Tree, Slice, Table } from "./history.js";
 import { matchInstruction } from "./matchers.js";
 import { Instruction, Parser } from "./parser.js";
 import { Debug, Position } from "./types.js";
@@ -19,11 +19,14 @@ export class ScriptRunner {
 
     runOnPosition(position: Position) {
 
+        this.history.resetPosition(position)
+
         let slices: Slice[] = [{ off: 0, len: 1 }]
 
         for (let ins of this.history.program) {
+            let lastSlice = slices[slices.length - 1]!
             let off = this.history.nodes.length
-            matchInstruction(ins, this.history, off)
+            matchInstruction(ins, this.history, lastSlice)
             let len = this.history.nodes.length - off
             slices.push({ off, len })
         }
@@ -37,8 +40,8 @@ export class ScriptRunner {
 
             if (i > 1) preview += '\n'
             preview += `${i++}: `
-            for (let ms of movesSlice) {
-                preview += `{${Debug.movesAsSans(this.history.position, ms)}}`
+            for (let moves2 of movesSlice) {
+                preview += `{${Debug.movesAsSans(this.history.position, moves2)}}`
             }
 
         }

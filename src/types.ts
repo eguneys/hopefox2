@@ -12,13 +12,12 @@ export type Rank = typeof Ranks[number]
 
 export type Square = `${File}${Rank}`
 
-const Squares: Square[] = Files.flatMap(file => Ranks.map(rank => `${file}${rank}`))
+export const Squares: Square[] = Ranks.flatMap(rank => Files.map(file => `${file}${rank}`))
 
 export const Directions = ['up', 'down', 'left', 'right', 'up-left', 'up-right', 'down-left', 'down-right']
 export const KnightDirections = ['up2-left', 'up2-right', 'down2-left', 'down2-right', 'up-left2', 'up-right2', 'down-left2', 'down-right2']
 export const PawnDirections = ['forward', 'backward', 'forward2', 'backward2', 'side-left', 'side-right']
-export const DirectionPlus = ['horizontal', 'vertical', 'straight', 'diagonal']
-export const DirectionPiece = ['queen', 'king', 'black-pawn', 'white-pawn', 'knight', 'bishop', 'rook']
+export const PieceDirections = ['queen', 'king', 'black-pawn', 'white-pawn', 'knight', 'bishop', 'rook']
 
 
 export const KingZones = ['white-king-home', 'black-king-home', 'white-queen-home', 'black-queen-home']
@@ -26,8 +25,7 @@ export const KingZones = ['white-king-home', 'black-king-home', 'white-queen-hom
 export type Directions = typeof Directions[number]
 export type KnightDirections = typeof KnightDirections[number]
 export type PawnDirections = typeof PawnDirections[number]
-export type DirectionPlus = typeof DirectionPlus[number]
-export type DirectionPieces = typeof DirectionPiece[number]
+export type PieceDirections = typeof PieceDirections[number]
 
 export const Roles = ['queen', 'bishop', 'king', 'rook', 'knight', 'pawn']
 export const PromotionRoles = ['queen', 'bishop', 'rook', 'knight']
@@ -39,9 +37,7 @@ export type PromotionRole = typeof PromotionRoles[number]
 export type Piece = `${Color}-${Role}`
 
 export function squareToIndex(square: Square) {
-    const file = Files.indexOf(square[0]!)
-    const rank = Ranks.indexOf(square[1]!)
-    return rank * 8 + file
+    return Squares.indexOf(square)
 }
 
 export function king_distance(from: Square, to: Square) {
@@ -63,6 +59,7 @@ export class Bitboard {
     }
 
 
+    static get Full(): Bitboard { return Bitboard.Zero.complement() }
     static get Zero(): Bitboard { return new Bitboard(0, 0) }
     static get A1(): Bitboard { return Bitboard.fromSquare('a1') }
     static get B1(): Bitboard { return Bitboard.fromSquare('b1') }
@@ -170,6 +167,9 @@ export class Bitboard {
     }
 
 
+    complement() {
+        return new Bitboard(~this.lo, ~this.hi)
+    }
 
 
     isNotEmpty() {
@@ -179,6 +179,24 @@ export class Bitboard {
     isEmpty() {
         return this.lo === 0 && this.hi === 0
     }
+
+
+
+    *[Symbol.iterator](): Iterator<Square> {
+        let lo = this.lo;
+        let hi = this.hi;
+        while (lo !== 0) {
+            const idx = 31 - Math.clz32(lo & -lo);
+            lo ^= 1 << idx;
+            yield Squares[idx];
+        }
+        while (hi !== 0) {
+            const idx = 31 - Math.clz32(hi & -hi);
+            hi ^= 1 << idx;
+            yield Squares[32 + idx];
+        }
+    }
+
 }
 
 
@@ -217,6 +235,31 @@ export class Position {
         this.bb_knight = Bitboard.Zero
         this.bb_king = Bitboard.Zero
         this.turn = 'white'
+    }
+
+    bb_opponent() {
+        return this.turn === 'black' ? this.bb_white : this.bb_black()
+    }
+
+    bb_turn() {
+        return this.turn === 'white' ? this.bb_white : this.bb_black()
+    }
+
+    bb_black() {
+        return this.occupied().bitdiff(this.bb_white)
+    }
+
+    bb_vacant() {
+        return this.occupied().complement()
+    }
+
+    occupied() {
+        return this.bb_bishop
+            .bitor(this.bb_king)
+            .bitor(this.bb_knight)
+            .bitor(this.bb_rook)
+            .bitor(this.bb_queen)
+            .bitor(this.bb_pawn)
     }
 
     getColor(sq: Square): Color {
@@ -377,6 +420,23 @@ export class Position {
 
 export class Debug {
 
+    static San = (pos: Position, move: Move) => {
+        const from_role = pos.roleOn(move.from)!
+
+        return `${Debug.SanRole(from_role)}${move.to}`
+    }
+
+    static SanRole = (role: Role) => {
+        switch (role) {
+            case 'rook': return 'R'
+            case 'bishop': return 'B'
+            case 'knight': return 'N'
+            case 'king': return 'K'
+            case 'queen': return 'Q'
+            case 'pawn': return ''
+        }
+    }
+
     static Bitboard = (a: Bitboard) => {
         let res = ''
         for (let rank of RanksReversed) {
@@ -420,13 +480,44 @@ export class Debug {
     }
 
     static movesAsSans = (pos: Position, moves: Move[]) => {
-        return 'Nf3'
+        let result = []
+        let ipos = Position.clone(pos)
+        for (let move of moves) {
+            result.push(Debug.San(ipos, move))
+            ipos.makeMove(move)
+        }
+        return result
     }
 }
 
 export class DebugParser {
+    static Bitboard = (str: string) => {
+        str = str.trim()
+        str = str.replaceAll('\n', '')
+        let result = Bitboard.Zero
+
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                let char = str[i * 8 + j]!
+
+                if (char === 'o') {
+                    const file = Files[j]
+                    const rank = RanksReversed[i]
+                    const square = `${file}${rank}`
+                    result.set(square)
+                }
+            }
+        }
+
+
+        return result
+    }
+
+
+
     static Position = (str: string, turn: Color = 'white'): Position => {
         str = str.trim()
+        str = str.replaceAll('\n', '')
         let result = Position.Zero
 
         result.turn = turn
@@ -439,7 +530,7 @@ export class DebugParser {
 
                 if (piece) {
                     const file = Files[j]
-                    const rank = Ranks[i]
+                    const rank = RanksReversed[i]
                     const square = `${file}${rank}`
                     result.addPiece(square, piece)
                 }
@@ -527,7 +618,20 @@ export class Move {
 
     static get None() { return new Move('a1', 'a1', 'normal', undefined) }
 
-    constructor(public from: Square, public to: Square, public kind: MoveKind, public promotion?: PromotionRole) { }
+    static normal = (from: Square, to: Square) => {
+        return new Move(from, to, 'normal')
+    }
+
+    static castling = (from: Square, to: Square) => {
+        return new Move(from, to, 'castling')
+    }
+    static promotion = (from: Square, to: Square, promotion: PromotionRole) => {
+        return new Move(from, to, 'promotion', promotion)
+    }
+
+
+
+    private constructor(public from: Square, public to: Square, public kind: MoveKind, public promotion?: PromotionRole) { }
 
     isNone() {
         return this.from === this.to
@@ -543,15 +647,15 @@ export class Uci {
 
 
         if (promotion) {
-            return new Move(from, to, 'promotion', promotion)
+            return Move.promotion(from, to, promotion)
         }
 
         if (position.roleOn(from) === 'king') {
             if (king_distance(from, to) === 2) {
-                return new Move(from, to, 'castling')
+                return Move.castling(from, to)
             }
         }
-        return new Move(from, to, 'normal')
+        return Move.normal(from, to)
     }
 
     static parseRole(char: string): PromotionRole {
