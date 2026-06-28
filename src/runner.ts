@@ -32,7 +32,6 @@ export class ScriptRunner {
             slices.push({ off, len })
         }
 
-        let moves: string[] = []
         let preview = ''
 
         let i = 1
@@ -46,6 +45,9 @@ export class ScriptRunner {
             }
 
         }
+
+        let movesSlice = this.history.getSlice(slices[slices.length - 1])
+        let moves = DebugMove.movesAsUcis(this.history.position, movesSlice[0] ?? [])
 
         return { moves, preview }
     }

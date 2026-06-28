@@ -2,6 +2,11 @@ import { CheckFinder } from "./check.js"
 import { Debug, Move, Position, Uci } from "./types.js"
 
 export class DebugMove {
+
+    static Uci = (pos: Position, move: Move) => {
+        return `${move.from}${move.to}`
+    }
+
     static San = (pos: Position, move: Move) => {
         const from_role = pos.roleOn(move.from)!
         const to = pos.pieceOn(move.to)
@@ -38,4 +43,18 @@ export class DebugMove {
         }
         return result
     }
+
+
+    static movesAsUcis = (pos: Position, moves: Move[]) => {
+        let result = []
+        let ipos = Position.clone(pos)
+        for (let move of moves) {
+            if (move.isNone()) continue
+            result.push(DebugMove.Uci(ipos, move))
+            ipos.makeMove(move)
+        }
+        return result
+    }
+
+
 }

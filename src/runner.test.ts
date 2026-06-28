@@ -5,7 +5,7 @@ import { read_csv } from './db.js'
 import fs from 'node:fs'
 import { DebugParser } from './types.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(0, 1)
+let puzzles100 = puzzles.slice(0, 10)
 
 it.only('basic usage', () => {
 
@@ -20,10 +20,19 @@ bishop *Captures queen2 *becomes bishop2
 
     let res = filter.filterPuzzles(puzzles100, [])
 
-    const negative = res.filter(_ => _.negative)
-    res = res.filter(_ => _.exact_solution)
+    res = res.filter(_ => _.exact)
 
-    console.log(negative[0].preview)
+
+    expect(res[0].preview).toBe(`
+https://lichess.org/training/01Vbe
+[Rc1+ Rd1 Rxd1+ Qxd1 Bxd1]
+1: {Rc1+}
+2: {Rc1+ Rd1}
+3: {Rc1+ Rd1 Rxd1+}
+4: {Rc1+ Rd1 Rxd1+}
+5: {Rc1+ Rd1 Rxd1+ Qxd1}
+6: {Rc1+ Rd1 Rxd1+ Qxd1 Bxd1}
+`.trim())
 
 })
 
