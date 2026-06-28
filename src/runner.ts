@@ -1,4 +1,5 @@
 import { CsvPuzzle } from "./db.js";
+import { DebugMove } from "./debug.js";
 import { History, Tree, Slice, Table } from "./history.js";
 import { matchInstruction } from "./matchers.js";
 import { Instruction, Parser } from "./parser.js";
@@ -41,7 +42,7 @@ export class ScriptRunner {
             if (i > 1) preview += '\n'
             preview += `${i++}: `
             for (let moves2 of movesSlice) {
-                preview += `{${Debug.movesAsSans(this.history.position, moves2)}}`
+                preview += `{${DebugMove.movesAsSans(this.history.position, moves2)}}`
             }
 
         }

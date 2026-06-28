@@ -60,6 +60,12 @@ function generate_king_masks() {
     return res
 }
 
+export function kingMoves(square: Square, direction: Directions) {
+    return king_masks[Directions.indexOf(direction)][Squares.indexOf(square)]
+}
+
+
+
 
 const knight_masks = generate_knight_masks()
 
@@ -229,22 +235,36 @@ export function rayHit(square: Square, occupied: Bitboard, direction: Directions
     }
 }
 
+export const RayPieceDirections = ['queen', 'bishop', 'rook']
+export type RayPieceDirections = typeof RayPieceDirections[number]
 
-export function disectPieceDirections(direction: PieceDirections): Directions[] {
+export function disectRayPieceDirections(direction: RayPieceDirections): Directions[] {
     switch (direction) {
-
         case 'queen': return ['up', 'left', 'right', 'down', 'up-left', 'up-right', 'down-left', 'down-right']
-        case 'king': return ['up', 'left', 'right', 'down', 'up-left', 'up-right', 'down-left', 'down-right']
-        case 'black-pawn': return ['down']
-        case 'white-pawn': return ['up']
         case 'bishop': return ['up-left', 'up-right', 'down-left', 'down-right']
         case 'rook': return ['up', 'left', 'right', 'down']
     }
-    throw 'bad piece direction'
+    throw 'bad ray piece direction'
 }
 
-export function pieceRayHit(square: Square, occupied: Bitboard, direction: PieceDirections) {
-    return disectPieceDirections(direction)
+export function pieceRayHit(square: Square, occupied: Bitboard, direction: RayPieceDirections) {
+    return disectRayPieceDirections(direction)
         .reduce((acc, _) => acc.bitor(rayHit(square, occupied, _)), Bitboard.Zero)
 }
 
+export function pieceCheck(square: Square, occupied: Bitboard, direction: PieceDirections): Bitboard {
+    switch (direction) {
+        case 'queen':
+        case 'bishop':
+        case 'rook': return pieceRayHit(square, occupied, direction)
+        case 'knight': return KnightDirections
+            .reduce((acc, _) => acc.bitor(knightMoves(square, _)), Bitboard.Zero)
+        case 'king': return Directions
+            .reduce((acc, _) => acc.bitor(kingMoves(square, _)), Bitboard.Zero)
+        case 'white-pawn': return kingMoves(square, 'up-left')
+            .bitor(kingMoves(square, 'up-right'))
+        case 'black-pawn': return kingMoves(square, 'down-left')
+            .bitor(kingMoves(square, 'down-right'))
+    }
+    throw `bad piece direction ${direction}`
+}

@@ -20,7 +20,7 @@ rook *Checks king *becomes rook2
 })
 
 
-it.skip('runOnPosition', () => {
+it('runOnPosition', () => {
 
     let runner = ScriptRunner.parse('rook *Checks king *becomes rook2')
 
@@ -32,7 +32,7 @@ it.skip('runOnPosition', () => {
 ........
 ........
 ........
-..r.....
+..R.....
 `))
 
     expect(preview).toEqual('1: {Rc8+}')

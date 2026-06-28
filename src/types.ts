@@ -1,5 +1,7 @@
 export type Color = 'white' | 'black'
 
+export const opposite = (color: Color) => color === 'white' ? 'black' : 'white'
+
 export const Files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
 export type File = typeof Files[number]
@@ -137,6 +139,11 @@ export class Bitboard {
 
     constructor(public lo: number, public hi: number) { }
 
+    single() {
+        if (this.hi !== 0) return Squares[63 - Math.clz32(this.hi)]
+        if (this.lo !== 0) return Squares[31 - Math.clz32(this.lo)]
+    }
+
     has(sq: Square) {
         return this.bitand(Bitboard.fromSquare(sq)).isNotEmpty()
     }
@@ -235,6 +242,10 @@ export class Position {
         this.bb_knight = Bitboard.Zero
         this.bb_king = Bitboard.Zero
         this.turn = 'white'
+    }
+
+    bb_color(color: Color) {
+        return color === 'white' ? this.bb_white : this.bb_black()
     }
 
     bb_opponent() {
@@ -403,6 +414,11 @@ export class Position {
     }
 
     makeMove(move: Move): Piece | undefined {
+        this.turn = opposite(this.turn)
+        return this.makeMoveWithoutFlippingTurn(move)
+    }
+
+    makeMoveWithoutFlippingTurn(move: Move): Piece | undefined {
         switch (move.kind) {
             case 'normal': {
                 return this.makeNormalMove(move)
@@ -419,12 +435,6 @@ export class Position {
 }
 
 export class Debug {
-
-    static San = (pos: Position, move: Move) => {
-        const from_role = pos.roleOn(move.from)!
-
-        return `${Debug.SanRole(from_role)}${move.to}`
-    }
 
     static SanRole = (role: Role) => {
         switch (role) {
@@ -479,15 +489,6 @@ export class Debug {
         }
     }
 
-    static movesAsSans = (pos: Position, moves: Move[]) => {
-        let result = []
-        let ipos = Position.clone(pos)
-        for (let move of moves) {
-            result.push(Debug.San(ipos, move))
-            ipos.makeMove(move)
-        }
-        return result
-    }
 }
 
 export class DebugParser {
@@ -667,4 +668,23 @@ export class Uci {
         }
         throw 'bad promotion role'
     }
+}
+
+
+export function strip_color_except_pawns(piece: Piece) {
+    switch (piece) {
+        case 'white-pawn':
+        case 'black-pawn': return piece
+        case 'white-bishop':
+        case 'black-bishop': return 'bishop'
+        case 'white-king':
+        case 'black-king': return 'king'
+        case 'white-queen':
+        case 'black-queen': return 'queen'
+        case 'white-rook':
+        case 'black-rook': return 'rook'
+        case 'white-knight':
+        case 'black-knight': return 'knight'
+    }
+    throw `bad piece ${piece}`
 }

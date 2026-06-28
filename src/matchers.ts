@@ -1,7 +1,8 @@
 import { Instruction, Symbol } from "./parser.js";
 import { History, Slice } from './history.js'
-import { Attacks, Bitboard, Debug, Move, Position, Square } from "./types.js";
+import { Bitboard, Debug, Move, Position, Square } from "./types.js";
 import * as log from './logs.js'
+import * as Attacks from './attacks.js'
 
 class MatchFilters {
     static checks = (ins: Instruction, history: History, slice: Slice) => {
@@ -66,15 +67,18 @@ class SymbolBitboard {
         var result = Bitboard.Zero
         switch (from_symbol.name) {
             case 'pawn': {
-                result = Attacks.pawn_moves(sq_from, position.occupied())
+                break
+            }
+            case 'knight': {
+                break
+            }
+            case 'king': {
                 break
             }
             case 'bishop':
             case 'rook':
-            case 'knight':
-            case 'queen':
-            case 'king': {
-                result = Attacks.piece_moves(from_symbol.name, sq_from, position.occupied())
+            case 'queen': {
+                result = Attacks.pieceRayHit(sq_from, position.occupied(), from_symbol.name)
                 break
             }
         }
