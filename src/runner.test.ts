@@ -1,9 +1,9 @@
 import { it, expect } from 'vitest'
 import { ScriptFilter, ScriptRunner } from './runner.js'
+import { DebugParser } from './types.js'
 import { read_csv } from './db.js'
 
 import fs from 'node:fs'
-import { DebugParser } from './types.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
 let puzzles100 = puzzles.slice(0, 10)
 
@@ -18,12 +18,10 @@ queen *Captures rook5 *becomes queen2
 bishop *Captures queen2 *becomes bishop2
 `.trim())
 
-    let res = filter.filterPuzzles(puzzles100, [])
-
-    res = res.filter(_ => _.exact)
+    let res = filter.filterPuzzles(puzzles100, new Map([['exact', _ => _.exact]]))
 
 
-    expect(res[0].preview).toBe(`
+    expect(res.get('exact')![0].preview).toBe(`
 https://lichess.org/training/01Vbe
 [Rc1+ Rd1 Rxd1+ Qxd1 Bxd1]
 1: {Rc1+}
@@ -55,3 +53,5 @@ it('runOnPosition', () => {
     expect(preview).toEqual('1: {Rc8+}')
 
 })
+
+

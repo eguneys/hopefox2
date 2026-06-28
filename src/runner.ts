@@ -53,7 +53,7 @@ export class ScriptRunner {
     }
 }
 
-class Bucket {
+export class Bucket {
 
     negative!: boolean
     shorter!: boolean
@@ -154,7 +154,7 @@ export class ScriptFilter {
         return result
     }
 
-    filterPuzzles(csv: CsvPuzzle[], filters: Filter[]) {
+    filterPuzzles(csv: CsvPuzzle[], filters: Map<string, Filter>) {
         let buckets = new Buckets()
 
         for (let pos of csv) {
@@ -176,7 +176,14 @@ class Buckets {
     }
 
 
-    filter(filters: Filter[]) {
-        return this.buckets.filter(_ => filters.every(f => f(_)))
+    filter(filters: Map<string, Filter>) {
+        let result = new Map<string, Bucket[]>
+
+
+        for (let [key, filter] of filters) {
+            result.set(key, this.buckets.filter(_ => filter(_)))
+        }
+
+        return result
     }
 }
