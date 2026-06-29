@@ -15,7 +15,6 @@ export class Orchestrator {
 
     filterPuzzles(puzzles: CsvPuzzle[]) {
         let negative_preview = ''
-        let exact_preview = ''
 
         const filters = new Map([
             ['exact', exact_filter],
@@ -24,16 +23,13 @@ export class Orchestrator {
 
         for (let [name, script] of this.scripts) {
 
-            exact_preview += `${name}:\n`
+
             let result = script.filterPuzzles(puzzles, filters)
 
-            exact_preview += result.get('exact')!.map(_ => _.preview).join('\n')
             negative_preview += result.get('negative')!.slice(0, 3).map(_ => _.preview).join('\n')
         }
 
         return `
-Exact:
-${exact_preview}
 Negative:
 ${negative_preview}
 `.trim()

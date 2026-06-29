@@ -60,10 +60,22 @@ function generate_king_masks() {
     return res
 }
 
+
+
 export function kingMoves(square: Square, direction: Directions) {
     return king_masks[Directions.indexOf(direction)][Squares.indexOf(square)]
 }
 
+
+export function kingMovesPlus(square: Square, direction: DirectionPlus) {
+    return disectDirectionPlus(direction)
+        .reduce((acc, _) => acc.bitor(knightMoves(square, _)), Bitboard.Zero)
+}
+
+export function kingMovesAll(square: Square) {
+    return Directions
+        .reduce((acc, _) => acc.bitor(kingMoves(square, _)), Bitboard.Zero)
+}
 
 
 
@@ -124,6 +136,18 @@ export function knightMovesPlus(square: Square, direction: KnightDirectionsPlus)
     return disectKnightDirectionPlus(direction)
         .reduce((acc, _) => acc.bitor(knightMoves(square, _)), Bitboard.Zero)
 }
+
+
+export function disectDirectionPlus(direction: DirectionPlus): Directions[] {
+    switch (direction) {
+        case 'horizontal': return ['left', 'right']
+        case 'vertical': return ['up', 'down']
+        case 'straight': return ['up', 'down', 'left', 'right']
+        case 'diagonal': return ['up-left', 'up-right', 'down-left', 'down-right']
+    }
+    throw 'bad direction plus'
+}
+
 
 
 export const DirectionPlus = ['horizontal', 'vertical', 'straight', 'diagonal']

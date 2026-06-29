@@ -159,6 +159,16 @@ export class Bitboard {
         return new Bitboard(this.lo & ~other.lo, this.hi & ~other.hi)
     }
 
+    without(sq: Square) {
+        return this.bitdiff(Bitboard.fromSquare(sq))
+    }
+
+    with(sq: Square) {
+        return this.bitor(Bitboard.fromSquare(sq))
+    }
+
+
+
     set(sq: Square) {
         const result = this.bitor(Bitboard.fromSquare(sq))
         this.lo = result.lo
@@ -570,6 +580,10 @@ export class Fen {
         const position = Position.Zero
 
         let [board, color, castling] = fen.split(' ')
+
+        if (color === 'b') {
+            position.turn = 'black'
+        }
 
         let irank = 0
         for (let files of board!.split('/')) {

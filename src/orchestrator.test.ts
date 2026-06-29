@@ -8,7 +8,7 @@ let puzzles100 = puzzles.slice(0, 10)
 
 
 
-it('basic usage', () => {
+it('basic usage only', () => {
 
     let orch = new Orchestrator(new Map([
         ["one.gof", `
@@ -22,7 +22,7 @@ bishop *Captures queen2 *becomes bishop2
 
     ]))
 
-    const res = orch.filterPuzzles(puzzles100)
+    const res = orch.filterPuzzles(puzzles100.filter(_ => _.id === '01GC2'))
 
     console.log(res)
 

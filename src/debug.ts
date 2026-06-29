@@ -17,8 +17,9 @@ export class DebugMove {
         const isCapture = to !== undefined
 
         const isCheck = CheckFinder.isCheck(pos_after)
+        const isCheckmate = CheckFinder.isCheckmate(pos_after)
 
-        return `${Debug.SanRole(from_role)}${isCapture ? 'x' : ''}${move.to}${isCheck ? '+' : ''}`
+        return `${Debug.SanRole(from_role)}${isCapture ? 'x' : ''}${move.to}${isCheckmate ? '#' : isCheck ? '+' : ''}`
     }
 
 
