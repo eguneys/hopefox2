@@ -178,6 +178,27 @@ bishop2 *Captures rook *becomes bishop3
 `.trim()],
 
 
+                ['ctb_rook_exchange.gof', `
+rook_t *Captures rook2_o *becomes rook3
+bishop_t *Captures rook3 *becomes bishop2
+                                     .hanging
+rook4_t *Captures bishop2 *becomes rook5
+`.trim()],
+
+                ['ctb_queen_exchange.gof', `
+queen_t *Captures bishop_o *becomes queen2
+queen3_t *Captures queen2 *becomes queen4
+                                     .hanging
+rook_t *Captures queen4 *becomes rook2
+`.trim()],
+
+                ['ctq_knight_fork2.gof', `
+knight_t *Forks king_o *and queen_o *becomes knight2
+king *Captures pawn *becomes king2
+knight2 *Captures queen *becomes knight3
+`.trim()],
+
+
 
         ]
 
