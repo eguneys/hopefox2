@@ -51,7 +51,7 @@ export class ScriptRunner {
         let moves = new MoveTree()
 
         for (let slice of movesSlice) {
-            moves.appendSlice(slice)
+            moves.appendSlice(slice.filter(_ => !_.isNone()))
         }
 
         return { moves, preview }

@@ -332,7 +332,14 @@ export class Parser {
 
         let to = this.getNextTokenAfter(action.line, action.end_column)
 
-        if (!to || to.kind !== TokenType.Symbol) {
+        if (to === undefined) {
+            return {
+                from: token,
+                action,
+            }
+        }
+
+        if (to.kind !== TokenType.Symbol) {
             throw `expecting symbol after action Line:${action.line} Column:${action.begin_column}`
         }
 

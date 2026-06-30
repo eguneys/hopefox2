@@ -1,4 +1,4 @@
-import { Bitboard, Directions, Files, KnightDirections, PieceDirections, Ranks, Square, Squares } from "./types.js"
+import { Bitboard, Color, Directions, Files, KnightDirections, PieceDirections, Position, Ranks, Square, Squares, strip_color_except_pawns } from "./types.js"
 
 const ray_masks = generate_ray_masks()
 
@@ -307,4 +307,16 @@ export function directionFromTo(from: Square, to: Square) {
 
 export function rayBetweenFromTo(from: Square, to: Square) {
     return rayHit(from, Bitboard.fromSquare(to), directionFromTo(from, to)).unset(to)
+}
+
+
+export function allAttacksOfColor(position: Position, color: Color) {
+    let result = Bitboard.Zero
+    const occupied = position.occupied()
+    for (let sq_from of position.bb_color(color)) {
+        const direction = position.pieceOn(sq_from)!
+        const aa = pieceCheck(sq_from, occupied, strip_color_except_pawns(direction))
+        result = result.bitor(aa)
+    }
+    return result
 }

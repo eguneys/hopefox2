@@ -5,10 +5,76 @@ import * as log from './logs.js'
 import * as Attacks from './attacks.js'
 
 class MatchFilters {
+
+
+    static hanging = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const From = history.table.getColumn(from_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            const white_defends = Attacks.allAttacksOfColor(position, 'white')
+            const black_defends = Attacks.allAttacksOfColor(position, 'black')
+
+            for (let sq_from of bb_from2) {
+                const bb_defends = position.getColor(sq_from) === 'white' ? white_defends : black_defends
+
+                if (!bb_defends.has(sq_from)) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+
+                    history.nodes.appendChild(off, Move.None)
+                }
+            }
+        }
+
+    }
+
+
+
+    static notAttacked = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const From = history.table.getColumn(from_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            const white_attacks = Attacks.allAttacksOfColor(position, 'white')
+            const black_attacks = Attacks.allAttacksOfColor(position, 'black')
+
+            for (let sq_from of bb_from2) {
+                const bb_attacks = position.getColor(sq_from) === 'black' ? white_attacks : black_attacks
+
+                if (!bb_attacks.has(sq_from)) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+
+                    history.nodes.appendChild(off, Move.None)
+                }
+            }
+        }
+
+    }
+
     static checks = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const Check_symbol = fix_symbol_checks_to_check(ins.action.symbol!)
-        const checked_symbol = ins.to.symbol!
+        const checked_symbol = ins.to!.symbol!
         const From = history.table.getColumn(from_symbol)
         const Checked = history.table.getColumn(checked_symbol)
 
@@ -41,13 +107,62 @@ class MatchFilters {
         }
 
     }
+
+
+
+    static forks = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const Fork_symbol = fix_symbol_checks_to_check(ins.action.symbol!)
+        const forkedA_symbol = ins.to!.symbol!
+        const forkedB_symbol = ins.and!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const ForkedA = history.table.getColumn(forkedA_symbol)
+        const ForkedB = history.table.getColumn(forkedB_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_forkedA = ForkedA[off]
+            const bb_forkedB = ForkedB[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_forkedA2 = bb_forkedA.bitand(SymbolBitboard.square(position, forkedA_symbol))
+            const bb_forkedB2 = bb_forkedB.bitand(SymbolBitboard.square(position, forkedB_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_fork = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+
+                let bb_forkedA3 = aa_fork.bitand(bb_forkedA2)
+                let bb_forkedB3 = aa_fork.bitand(bb_forkedB2)
+
+                for (let sq_forkedA of bb_forkedA3) {
+                    for (let sq_forkedB of bb_forkedB3) {
+
+                        history.table.duplicateRow(off)
+
+                        history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                        history.table.setLastRow(forkedA_symbol, Bitboard.fromSquare(sq_forkedA))
+                        history.table.setLastRow(forkedB_symbol, Bitboard.fromSquare(sq_forkedB))
+                        //history.table.setLastRow(Check_symbol, Attacks.rayBetweenFromTo(sq_to, sq_checked))
+
+                        let move = Move.None
+                        history.nodes.appendChild(off, move)
+                    }
+                }
+
+            }
+
+        }
+    }
 }
 
 class MatchActions {
 
     static captures = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
-        const captured_symbol = ins.to.symbol!
+        const captured_symbol = ins.to!.symbol!
         const becomes_symbol = ins.becomes!.symbol!
         const From = history.table.getColumn(from_symbol)
         const Captured = history.table.getColumn(captured_symbol)
@@ -87,7 +202,7 @@ class MatchActions {
 
     static blocks = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
-        const check_symbol = ins.to.symbol!
+        const check_symbol = ins.to!.symbol!
         const becomes_symbol = ins.becomes!.symbol!
         const From = history.table.getColumn(from_symbol)
         const Check = history.table.getColumn(check_symbol)
@@ -125,7 +240,7 @@ class MatchActions {
 
     static evadesTo = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
-        const to_symbol = ins.to.symbol!
+        const to_symbol = ins.to!.symbol!
         const becomes_symbol = ins.becomes!.symbol!
         const From = history.table.getColumn(from_symbol)
         const To = history.table.getColumn(to_symbol)
@@ -165,7 +280,7 @@ class MatchActions {
     static forks = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const Fork_symbol = fix_symbol_checks_to_check(ins.action.symbol!)
-        const forkedA_symbol = ins.to.symbol!
+        const forkedA_symbol = ins.to!.symbol!
         const forkedB_symbol = ins.and!.symbol!
         const becomes_symbol = ins.becomes!.symbol!
         const From = history.table.getColumn(from_symbol)
@@ -224,7 +339,7 @@ class MatchActions {
     static checks = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const Check_symbol = fix_symbol_checks_to_check(ins.action.symbol!)
-        const checked_symbol = ins.to.symbol!
+        const checked_symbol = ins.to!.symbol!
         const becomes_symbol = ins.becomes!.symbol!
         const From = history.table.getColumn(from_symbol)
         const Checked = history.table.getColumn(checked_symbol)
@@ -355,7 +470,7 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
             if (ins.becomes) {
                 MatchActions.forks(ins, history, slice)
             } else {
-                //MatchFilters.checks(ins, history, slice)
+                MatchFilters.forks(ins, history, slice)
             }
         } break
         case 'Checks': {
@@ -373,6 +488,18 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
         case 'Captures': {
             if (ins.becomes) {
                 MatchActions.captures(ins, history, slice)
+            }
+        }
+        case 'notAttacked': {
+            if (ins.becomes) {
+            } else {
+                MatchFilters.notAttacked(ins, history, slice)
+            }
+        }
+        case 'hanging': {
+            if (ins.becomes) {
+            } else {
+                MatchFilters.hanging(ins, history, slice)
             }
         }
     }

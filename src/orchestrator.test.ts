@@ -4,14 +4,14 @@ import { Orchestrator } from './orchestrator.js'
 import fs from 'node:fs'
 import { read_csv } from './db.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(15, 16)
+let puzzles100 = puzzles.slice(0, 30)
 
 
 
 it('basic usage only', () => {
 
 
-        const fundamentals: [string, string][] = [
+        let fundamentals: [string, string][] = [
                 ["one.gof", `
 rook_t *Checks king_o *becomes rook2
 rook3_t *Blocks Check *becomes rook4
@@ -58,6 +58,7 @@ knight_t *Forks king_o *and rook_o *becomes knight2
 king *EvadesTo sq *becomes king2
 knight2 *Captures rook *becomes knight3
 `.trim()],
+
                 ['queen_backrank_block_mate.gof', `
 queen_t *Checks king_o *becomes queen2
 rook_t *Blocks Check *becomes rook2
@@ -84,15 +85,69 @@ queen_t *Checks king_o *becomes queen2
 rook_t *Blocks Check *becomes rook2
 queen2 *Captures rook2 *becomes queen3
 `.trim()],
+
+                ['queen_backrank_sacrifice_block_mate.gof', `
+queen_t *Captures rook_o *becomes queen2
+        .Checks king_t
+bishop_t *Captures queen2 *becomes bishop2
+rook2_t *Captures bishop2 *becomes rook3
+        .Checks2 king_t
+queen3_t *Blocks Check2 *becomes queen4
+                                    .hanging
+rook3 *Captures queen4 *becomes rook4
+      .Checks3  king
+`.trim()],
+                ['rook_bishop_corner_mate.gof', `
+rook_t *Checks king_o *becomes rook2
+                                 .notAttacked
+king *EvadesTo sq *becomes king2
+rook2 *Checks king2 *becomes rook3
+`.trim()],
+                ['ctb_knight_fork.gof', `
+knight_t *Forks king_o *and bishop_o *becomes knight2
+king *EvadesTo sq *becomes king2
+knight2 *Captures bishop *becomes knight3
+`.trim()],
+
+                ['bmate_rook_capture_queen_block.gof', `
+rook_t *Captures rook2_o *becomes rook3
+                                  .notAttacked
+       .Checks king_t
+queen_t *Blocks Check *becomes queen2
+                                    .hanging
+rook3 *Captures queen2 *becomes rook4
+`.trim()],
+
+
+                ['bmate_bishop_help_double_rook_exchange.gof', `
+rook_t *Captures rook2_o *becomes rook3
+       .Checks king_t
+knight_t *Captures rook3 *becomes knight2
+                                    .hanging
+rook4_t *Captures knight2 *becomes rook5
+`.trim()],
+
+                ['qzmate_corner_with_rook.gof', `
+queen_t *Captures rook_o *becomes queen2
+`.trim()],
+
+                ['ctb_hanging_queen_liquidate_checking_queen.gof', `
+bishop_o .hanging
+queen_t *Captures bishop *becomes queen2
+queen3_t *Checks king_o *becomes queen4
+         .Forks king .and queen2
+queen2 *Captures queen4 *becomes queen5
+`.trim()],
+
+
+
+
         ]
 
+        //fundamentals = fundamentals.slice(-1)
+
         let orch = new Orchestrator(new Map([
-                ['queen_backrank_block_mate.gof', `
-queen_t *Checks king_o *becomes queen2
-                                  .notAttacked
-rook_t *Blocks Check *becomes rook2
-queen2 *Captures rook2 *becomes queen3
-`.trim()],
+                ...fundamentals,
         ]))
 
         const res = orch.filterPuzzles(puzzles100)
