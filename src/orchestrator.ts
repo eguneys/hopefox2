@@ -16,11 +16,13 @@ export class Orchestrator {
     filterPuzzles(puzzles: CsvPuzzle[]) {
         const filters = new Map([
             ['exact', exact_filter],
-            ['negative', negative_filter]
+            ['negative', negative_filter],
+            ['false', false_filter]
         ])
 
         let negatives = []
         let exacts = []
+        let falses = []
 
         let nb_exact = 0
 
@@ -30,7 +32,8 @@ export class Orchestrator {
             nb_exact += result.get('exact')!.length
 
             exacts.push(...result.get('exact')!)
-            negatives.push(...result.get('negative')!)
+            negatives.unshift(...result.get('negative')!)
+            falses.unshift(...result.get('false')!)
         }
 
         let negative_preview = 'All done!'
@@ -41,11 +44,23 @@ export class Orchestrator {
             }
         }
 
+        let false_preview = 'All done!'
+        if (negative_preview = 'All done!') {
+            for (let negative of falses) {
+                if (!exacts.find(_ => _.csv_puzzle.id === negative.csv_puzzle.id)) {
+                    false_preview = negative.preview
+                    break
+                }
+            }
+        }
+
 
         return `
 Exact: ${nb_exact}
 Negative:
 ${negative_preview}
+False:
+${false_preview}
 `.trim()
     }
 }
@@ -57,4 +72,8 @@ function negative_filter(bucket: Bucket) {
 
 function exact_filter(bucket: Bucket) {
     return bucket.exact
+}
+
+function false_filter(bucket: Bucket) {
+    return bucket.moves_diverge_at !== undefined
 }

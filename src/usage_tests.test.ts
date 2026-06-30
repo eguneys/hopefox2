@@ -2,7 +2,7 @@ import { it, expect } from 'vitest'
 import { ScriptRunner } from './runner.js'
 import { DebugParser } from './types.js'
 
-it('knight fork only', () => {
+it('knight fork', () => {
 
 
         expectScriptPreview(`

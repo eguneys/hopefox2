@@ -101,7 +101,7 @@ export class ScriptFilter {
 
         let fullPreview = ''
 
-        fullPreview += `https://lichess.org/training/${pos.id}\n`
+        fullPreview += `${pos.index} https://lichess.org/training/${pos.id}\n`
         fullPreview += `[${DebugMove.ucisAsSans(pos.position, pos.solution).join(' ')}]\n`
 
         fullPreview += preview
