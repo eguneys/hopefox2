@@ -2,7 +2,7 @@ import { it, expect } from 'vitest'
 import { Lexer, Parser, TokenType } from './parser.js'
 
 
-it('works', () => {
+it('basic usage', () => {
 
     let lexer = new Lexer(`
 bishop *Captures king_t *becomes bishop23
@@ -19,11 +19,37 @@ bishop *Captures king_t *becomes bishop23
 })
 
 
-it('parses', () => {
+it('*Captures *becomes', () => {
 
     let parser = new Parser('bishop *Captures king2 *becomes bishop81')
     let res = parser.parse()
 
     expect(res.length).toBe(1)
+
+})
+
+
+it('*Forks *and', () => {
+
+    let parser = new Parser('knight_t *Forks king_o *and queen_o *becomes knight2')
+    let res = parser.parse()
+
+    expect(res.length).toBe(1)
+
+    expect(res[0].action.symbol!.name).toEqual('Forks')
+    expect(res[0].and).toBeDefined()
+    expect(res[0].and!.symbol!.name).toEqual('queen')
+
+})
+
+it('*EvadesTo *becomes', () => {
+
+    let parser = new Parser('king *EvadesTo sq *becomes king2')
+    let res = parser.parse()
+
+    expect(res.length).toBe(1)
+
+    expect(res[0].action.symbol!.name).toEqual('EvadesTo')
+    expect(res[0].becomes).toBeDefined()
 
 })

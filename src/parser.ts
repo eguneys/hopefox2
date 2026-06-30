@@ -269,12 +269,30 @@ export class Parser {
         }
         throw `expecting dot or star after symbol ${line} ${column}`
     }
+
+
+    private eatOptionalDotOrStar(line: number, column: number) {
+        let dot = this.getNextTokenAfter(line, column)
+        if (!dot) {
+            return undefined
+        }
+        if (dot.kind === TokenType.Dot || dot.kind === TokenType.Star) {
+            return dot
+        }
+    }
+
     private eatOptionalBinder(line: number, column: number) {
-        let binder = this.getNextTokenAfter(line, column)
+        let star = this.eatOptionalDotOrStar(line, column)
+
+        if (!star) {
+            return undefined
+        }
+
+        let binder = this.getNextTokenAfter(star.line, star.end_column)
         if (!binder) {
             return undefined
         }
-        if (binder.kind === TokenType.Binder) {
+        if (binder.kind === TokenType.Binder && binder.value !== 'becomes') {
             return binder
         }
         return undefined

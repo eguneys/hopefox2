@@ -123,6 +123,104 @@ class MatchActions {
     }
 
 
+    static evadesTo = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const to_symbol = ins.to.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_to = To[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+
+                let bb_to3 = aa_to.bitand(bb_to2)
+
+                for (let sq_to of bb_to3) {
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(to_symbol, Bitboard.fromSquare(sq_to))
+                    history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
+
+                    let move = Move.normal(sq_from, sq_to)
+                    history.nodes.appendChild(off, move)
+                }
+            }
+        }
+
+
+    }
+
+    static forks = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const Fork_symbol = fix_symbol_checks_to_check(ins.action.symbol!)
+        const forkedA_symbol = ins.to.symbol!
+        const forkedB_symbol = ins.and!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const ForkedA = history.table.getColumn(forkedA_symbol)
+        const ForkedB = history.table.getColumn(forkedB_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_forkedA = ForkedA[off]
+            const bb_forkedB = ForkedB[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_forkedA2 = bb_forkedA.bitand(SymbolBitboard.square(position, forkedA_symbol))
+            const bb_forkedB2 = bb_forkedB.bitand(SymbolBitboard.square(position, forkedB_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+                const bb_to = aa_to
+
+                for (let sq_to of bb_to) {
+
+                    const aa_fork = SymbolBitboard.movesTo(position, from_symbol, sq_to)
+
+                    let bb_forkedA3 = aa_fork.bitand(bb_forkedA2)
+                    let bb_forkedB3 = aa_fork.bitand(bb_forkedB2)
+
+                    for (let sq_forkedA of bb_forkedA3) {
+                        for (let sq_forkedB of bb_forkedB3) {
+
+                            history.table.duplicateRow(off)
+
+                            history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                            history.table.setLastRow(forkedA_symbol, Bitboard.fromSquare(sq_forkedA))
+                            history.table.setLastRow(forkedB_symbol, Bitboard.fromSquare(sq_forkedB))
+                            history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
+                            //history.table.setLastRow(Check_symbol, Attacks.rayBetweenFromTo(sq_to, sq_checked))
+
+                            let move = Move.normal(sq_from, sq_to)
+                            history.nodes.appendChild(off, move)
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+    }
+
+
+
     static checks = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const Check_symbol = fix_symbol_checks_to_check(ins.action.symbol!)
@@ -182,9 +280,15 @@ class SymbolBitboard {
                 break
             }
             case 'knight': {
+                result =
+                    Attacks.knightMovesPlus(sq_from, 'up2')
+                        .bitor(Attacks.knightMovesPlus(sq_from, 'down2'))
+                        .bitor(Attacks.knightMovesPlus(sq_from, 'left2'))
+                        .bitor(Attacks.knightMovesPlus(sq_from, 'right2'))
                 break
             }
             case 'king': {
+                result = Attacks.kingMovesAll(sq_from)
                 break
             }
             case 'bishop':
@@ -242,6 +346,18 @@ class SymbolBitboard {
 
 export function matchInstruction(ins: Instruction, history: History, slice: Slice) {
     switch (ins.action.symbol!.name) {
+        case 'EvadesTo': {
+            if (ins.becomes) {
+                MatchActions.evadesTo(ins, history, slice)
+            }
+        } break
+        case 'Forks': {
+            if (ins.becomes) {
+                MatchActions.forks(ins, history, slice)
+            } else {
+                //MatchFilters.checks(ins, history, slice)
+            }
+        } break
         case 'Checks': {
             if (ins.becomes) {
                 MatchActions.checks(ins, history, slice)

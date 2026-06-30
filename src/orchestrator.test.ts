@@ -4,11 +4,11 @@ import { Orchestrator } from './orchestrator.js'
 import fs from 'node:fs'
 import { read_csv } from './db.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(0, 10)
+let puzzles100 = puzzles.slice(0, 20)
 
 
 
-it('basic usage only', () => {
+it('basic usage', () => {
 
         let orch = new Orchestrator(new Map([
                 ["one.gof", `
@@ -39,6 +39,12 @@ rook_t *Captures rook2 *becomes rook3
 rook4_t *Captures rook3 *becomes rook5
 rook6_t *Captures rook5 *becomes rook7
 `.trim()],
+                ['ctq_knight_fork.gof', `
+knight_t *Forks king_o *and queen_o *becomes knight2
+king *EvadesTo sq *becomes king2
+knight *Captures queen *becomes knight2
+`.trim()],
+
 
 
         ]))
