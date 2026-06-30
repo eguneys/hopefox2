@@ -1,4 +1,4 @@
-import { Bitboard, Color, Directions, Files, KnightDirections, PieceDirections, Position, Ranks, Square, Squares, strip_color_except_pawns } from "./types.js"
+import { Bitboard, Color, Colors, Directions, Files, KnightDirections, PawnDirections, PieceDirections, Position, Ranks, Square, Squares, strip_color_except_pawns } from "./types.js"
 
 const ray_masks = generate_ray_masks()
 
@@ -69,7 +69,7 @@ export function kingMoves(square: Square, direction: Directions) {
 
 export function kingMovesPlus(square: Square, direction: DirectionPlus) {
     return disectDirectionPlus(direction)
-        .reduce((acc, _) => acc.bitor(knightMoves(square, _)), Bitboard.Zero)
+        .reduce((acc, _) => acc.bitor(kingMoves(square, _)), Bitboard.Zero)
 }
 
 export function kingMovesAll(square: Square) {
@@ -78,6 +78,55 @@ export function kingMovesAll(square: Square) {
 }
 
 
+
+const pawn_masks = generate_pawn_masks()
+
+function generate_pawn_masks() {
+    let res: Bitboard[][][] = [
+        [...new Array(8).keys()].map(_ => []),
+        [...new Array(8).keys()].map(_ => []),
+    ]
+
+    const df = [0, 0, 0, 0, -1, 1, -1, 1]
+    const dr = [1, -1, 2, -2, 0, 0, 1, 1]
+
+    for (let square of Squares) {
+        const start_file = Files.indexOf(square[0])
+        const start_rank = Ranks.indexOf(square[1])
+
+        for (let dir = 0; dir < 8; dir++) {
+            let mask = Bitboard.Zero
+            let f = start_file + df[dir]
+            let r = start_rank + dr[dir]
+
+            if (f >= 0 && f < 8 && r >= 0 && r < 8) {
+                const target_square = `${Files[f]}${Ranks[r]}`
+                mask = mask.bitor(Bitboard.fromSquare(target_square))
+            }
+
+            res[0][dir][Squares.indexOf(square)] = mask
+        }
+
+
+        for (let dir = 0; dir < 8; dir++) {
+            let mask = Bitboard.Zero
+            let f = start_file + df[dir]
+            let r = start_rank - dr[dir]
+
+            if (f >= 0 && f < 8 && r >= 0 && r < 8) {
+                const target_square = `${Files[f]}${Ranks[r]}`
+                mask = mask.bitor(Bitboard.fromSquare(target_square))
+            }
+
+            res[1][dir][Squares.indexOf(square)] = mask
+        }
+    }
+    return res
+}
+
+export function pawnMoves(square: Square, color: Color, direction: PawnDirections) {
+    return pawn_masks[Colors.indexOf(color)][PawnDirections.indexOf(direction)][Squares.indexOf(square)]
+}
 
 const knight_masks = generate_knight_masks()
 

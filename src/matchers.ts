@@ -248,6 +248,45 @@ class MatchActions {
     }
 
 
+    static push_blocks = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const check_symbol = ins.to!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const Check = history.table.getColumn(check_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_check = Check[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_to = SymbolBitboard.pushes(position, from_symbol, sq_from)
+                const bb_block = bb_check.bitand(aa_to)
+
+                for (let sq_block of bb_block) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_block))
+
+                    let move = Move.normal(sq_from, sq_block)
+                    history.nodes.appendChild(off, move)
+                }
+            }
+        }
+
+
+    }
+
+
+
     static blocks = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const check_symbol = ins.to!.symbol!
@@ -459,6 +498,32 @@ class SymbolBitboard {
         return result
     }
 
+
+    static pushes = (position: Position, from_symbol: Symbol, sq_from: Square) => {
+        var result = Bitboard.Zero
+        switch (from_symbol.name) {
+            case 'pawn': {
+                result = Attacks.pawnMoves(sq_from, position.getColor(sq_from), 'forward')
+                break
+            }
+            case 'knight': {
+                break
+            }
+            case 'king': {
+                break
+            }
+            case 'bishop':
+            case 'rook':
+            case 'queen': {
+                break
+            }
+        }
+
+        return result
+    }
+
+
+
     static movesTo = (position: Position, from_symbol: Symbol, sq_from: Square) => {
         var result = Bitboard.Zero
         switch (from_symbol.name) {
@@ -532,6 +597,11 @@ class SymbolBitboard {
 
 export function matchInstruction(ins: Instruction, history: History, slice: Slice) {
     switch (ins.action.symbol!.name) {
+        case 'PushBlocks': {
+            if (ins.becomes) {
+                MatchActions.push_blocks(ins, history, slice)
+            }
+        } break
         case 'EvadesTo': {
             if (ins.becomes) {
                 MatchActions.evadesTo(ins, history, slice)

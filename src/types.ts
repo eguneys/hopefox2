@@ -1,4 +1,6 @@
-export type Color = 'white' | 'black'
+export const Colors = ['white', 'black']
+
+export type Color = typeof Colors[number]
 
 export const opposite = (color: Color) => color === 'white' ? 'black' : 'white'
 

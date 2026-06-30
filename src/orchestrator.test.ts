@@ -164,6 +164,19 @@ king *EvadesTo sq *becomes king2
 rook2 *Captures rook3 *becomes rook4
 `.trim()],
 
+                ['ctq_knight_exchange.gof', `
+knight_t *Captures knight2_o *becomes knight3
+queen_t *Captures knight3 *becomes queen2
+rook_t *Captures queen2 *becomes rook2
+`.trim()],
+
+                ['ctq_bishop_fork.gof', `
+bishop_t *Forks king_o *and rook_o *becomes bishop2
+         .Checks king
+pawn *PushBlocks Check *becomes pawn2
+bishop2 *Captures rook *becomes bishop3
+`.trim()],
+
 
 
         ]
