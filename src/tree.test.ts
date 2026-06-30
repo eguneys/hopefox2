@@ -42,7 +42,7 @@ it('variations', () => {
 
 
 
-it('get lines with only', () => {
+it('get lines with', () => {
 
     let tree = new MoveTree()
 
@@ -57,4 +57,22 @@ it('get lines with only', () => {
     expect(DebugMove.movesAsUcis(Fen.InitialPosition, e4Lines[0]).join(' ')).toEqual('e2e4 e7e5 g1f3')
     expect(DebugMove.movesAsUcis(Fen.InitialPosition, e4Lines[1]).join(' ')).toEqual('e2e4 e7e5 b1c3')
     expect(DebugMove.movesAsUcis(Fen.InitialPosition, e4Lines[2]).join(' ')).toEqual('e2e4 h7h5')
+})
+
+
+
+it('get lines with opponent moves', () => {
+
+    let tree = new MoveTree()
+
+    tree.appendSlice(DebugMove.ucisAsMoves(Fen.InitialPosition, 'e2e4 e7e5 g1f3 a7a5 a2a4'.split(' ')))
+    tree.appendSlice(DebugMove.ucisAsMoves(Fen.InitialPosition, 'e2e4 e7e5 b1c3 h7h5 h2h4'.split(' ')))
+    tree.appendSlice(DebugMove.ucisAsMoves(Fen.InitialPosition, 'e2e4 h7h5'.split(' ')))
+
+
+    let e4Lines = tree.getLinesWithOpponentMoves(DebugMove.ucisAsMoves(Fen.InitialPosition, 'e2e4 e7e5 b1c3 h7h5'.split(' ')))
+
+    expect(e4Lines).toBeDefined()
+    expect(e4Lines!.length).toEqual(1)
+    expect(DebugMove.movesAsUcis(Fen.InitialPosition, e4Lines[0]).join(' ')).toEqual('e2e4 e7e5 b1c3 h7h5 h2h4')
 })

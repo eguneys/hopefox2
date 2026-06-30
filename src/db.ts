@@ -17,6 +17,6 @@ export function read_csv(csv: string): CsvPuzzle[] {
 
         position.makeMove(Uci.parse(move!, position))
 
-        return { index: i + 1, id: id!, position, solution: rest }
+        return { index: i, id: id!, position, solution: rest }
     })
 }

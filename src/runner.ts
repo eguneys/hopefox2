@@ -113,29 +113,32 @@ export class ScriptFilter {
 
         let result = new Bucket(fullPreview, pos)
 
-        if (moves.size === 0) {
+
+        const solutionMoves = DebugMove.ucisAsMoves(pos.position, pos.solution)
+        let firstLine = DebugMove.movesAsUcis(pos.position, moves.getLinesWithOpponentMoves(solutionMoves)[0])
+
+        if (firstLine === undefined) {
             result.negative = true
         }
 
-        if (moves.size < pos.solution.length) {
+        if (firstLine.length < pos.solution.length) {
             result.shorter = true
-        } else if (moves.size > pos.solution.length) {
+        } else if (firstLine.length > pos.solution.length) {
             result.longer = true
         } else {
             result.exact_length = true
         }
 
-        let firstMoves = moves.getChildrenAfter([])!
-        if (firstMoves !== undefined && firstMoves.length > 0) {
+        if (firstLine !== undefined && firstLine.length > 0) {
 
-            const firstMove = DebugMove.Uci(pos.position, firstMoves[0])
+            const firstMove = firstLine[0]
 
             if (firstMove !== undefined && firstMove === pos.solution[0]) {
                 result.exact_first_move = true
             }
         }
 
-        let firstLine = DebugMove.movesAsUcis(pos.position, moves.getLinesWith([])[0])
+
 
         for (let i = 0; i < pos.solution.length; i++) {
             if (firstLine[i] === pos.solution[i]) {

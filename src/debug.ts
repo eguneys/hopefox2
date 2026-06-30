@@ -58,7 +58,6 @@ export class DebugMove {
     }
 
 
-
     static ucisAsMoves = (pos: Position, ucis: string[]) => {
         let result = []
         let ipos = Position.clone(pos)

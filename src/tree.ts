@@ -56,4 +56,38 @@ export class MoveTree {
 
         return children.flatMap(child => this.getLinesWith([...moves, child]))
     }
+
+
+
+
+    getLinesWithOpponentMoves(moves: Move[]) {
+
+        let result = []
+        let parent = 0
+
+        let i = 0
+        outer: for (let move of moves) {
+            if (i++ % 2 === 0) continue
+            let candidates = this.items.filter(_ => _.parent === parent)
+
+            for (let ocandidate of candidates) {
+                let candidate = this.items.indexOf(ocandidate)
+
+                let op = this.items.findIndex(_ => _.parent === candidate && _.move.equals(move))
+
+                parent = op
+
+                if (op === -1) {
+                    continue
+                }
+
+                result.push(candidate)
+                result.push(op)
+                continue outer
+            }
+            break
+        }
+
+        return this.getLinesWith(result.map(_ => this.items[_].move))
+    }
 }
