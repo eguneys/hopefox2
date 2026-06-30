@@ -4,7 +4,7 @@ import { Orchestrator } from './orchestrator.js'
 import fs from 'node:fs'
 import { read_csv } from './db.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(0, 45)
+let puzzles100 = puzzles.slice(0, 50)
 
 
 
@@ -198,6 +198,17 @@ king *Captures pawn *becomes king2
 knight2 *Captures queen *becomes knight3
 `.trim()],
 
+                ['ctq_immediate_hang_to_knight.gof', `
+bishop_o .hanging
+knight_t *Captures bishop *becomes knight2
+`.trim()],
+
+
+                ['push_pawns.gof', `
+pawn_t *Pushes sq *becomes pawn2
+knight_t *MovesTo sq2 *becomes knight2
+pawn2 *Pushes sq3 *becomes pawn3
+`.trim()],
 
 
         ]

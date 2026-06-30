@@ -22,7 +22,7 @@ bishop *Captures queen2 *becomes bishop2
 
 
     expect(res.get('exact')![0].preview).toBe(`
-https://lichess.org/training/01Vbe
+0 https://lichess.org/training/01Vbe
 [Rc1+ Rd1 Rxd1+ Qxd1 Bxd1]
 1: {Rc1+}
 2: {Rc1+ Rd1}

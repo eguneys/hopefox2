@@ -28,7 +28,14 @@ export class CheckFinder {
         this.checkers = Bitboard.Zero
         this.safe_evades = Bitboard.Zero
 
-        const sq_color_king = position.bb_king.bitand(position.bb_color(color)).single()!
+        const sq_color_king = position.bb_king.bitand(position.bb_color(color)).single()
+
+        if (sq_color_king === undefined) {
+            this.check_rays = []
+            this.blocks_check = Bitboard.Zero
+            this.captures_check = Bitboard.Zero
+            return
+        }
 
         const occupied = position.occupied()
 
