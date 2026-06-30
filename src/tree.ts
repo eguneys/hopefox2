@@ -13,6 +13,10 @@ export class MoveTree {
         this.items = [{ move: Move.None, parent: -1 }]
     }
 
+    get size() {
+        return this.items.filter(_ => !_.move.isNone()).length
+    }
+
     appendSlice(moves: Move[]) {
 
         let parent = 0

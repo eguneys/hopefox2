@@ -3,6 +3,7 @@ import { DebugMove } from "./debug.js";
 import { History, Tree, Slice, Table } from "./history.js";
 import { matchInstruction } from "./matchers.js";
 import { Instruction, Parser } from "./parser.js";
+import { MoveTree } from "./tree.js";
 import { Debug, Position } from "./types.js";
 
 export class ScriptRunner {
@@ -47,7 +48,11 @@ export class ScriptRunner {
         }
 
         let movesSlice = this.history.getSlice(slices[slices.length - 1])
-        let moves = DebugMove.movesAsUcis(this.history.position, movesSlice[0] ?? [])
+        let moves = new MoveTree()
+
+        for (let slice of movesSlice) {
+            moves.appendSlice(slice)
+        }
 
         return { moves, preview }
     }
@@ -108,41 +113,43 @@ export class ScriptFilter {
 
         let result = new Bucket(fullPreview, pos)
 
-        if (moves.length === 0) {
+        if (moves.size === 0) {
             result.negative = true
         }
 
-        if (moves.length < pos.solution.length) {
+        if (moves.size < pos.solution.length) {
             result.shorter = true
-        } else if (moves.length > pos.solution.length) {
+        } else if (moves.size > pos.solution.length) {
             result.longer = true
         } else {
             result.exact_length = true
         }
 
+        let firstMoves = moves.getChildrenAfter([])!
+        if (firstMoves !== undefined && firstMoves.length > 0) {
 
-        if (moves[0] !== undefined && moves[0] === pos.solution[0]) {
-            result.exact_first_move = true
+            const firstMove = DebugMove.Uci(pos.position, firstMoves[0])
+
+            if (firstMove !== undefined && firstMove === pos.solution[0]) {
+                result.exact_first_move = true
+            }
         }
-        if (moves[1] !== undefined && moves[1] === pos.solution[1]) {
-            result.exact_second_move = true
-        }
 
-
+        let firstLine = DebugMove.movesAsUcis(pos.position, moves.getLinesWith([])[0])
 
         for (let i = 0; i < pos.solution.length; i++) {
-            if (moves[i] === pos.solution[i]) {
+            if (firstLine[i] === pos.solution[i]) {
                 continue
             }
 
-            if (moves[i] !== undefined) {
+            if (firstLine[i] !== undefined) {
                 result.moves_diverge_at = i
                 break
             }
         }
 
-        for (let i = 0; i < moves.length; i++) {
-            if (moves[i] === pos.solution[i]) {
+        for (let i = 0; i < firstLine.length; i++) {
+            if (firstLine[i] === pos.solution[i]) {
                 continue
             }
 

@@ -29,8 +29,6 @@ export class Orchestrator {
         for (let [name, script] of this.scripts) {
             let result = script.filterPuzzles(puzzles, filters)
 
-            nb_exact += result.get('exact')!.length
-
             exacts.push(...result.get('exact')!)
             negatives.unshift(...result.get('negative')!)
             falses.unshift(...result.get('false')!)
@@ -54,6 +52,14 @@ export class Orchestrator {
             }
         }
 
+
+        let exacts_unique = new Set()
+
+        for (let exact of exacts) {
+            exacts_unique.add(exact.csv_puzzle.id)
+        }
+
+        nb_exact = exacts_unique.size
 
         return `
 Exact: ${nb_exact}

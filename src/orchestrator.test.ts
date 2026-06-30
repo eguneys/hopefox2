@@ -8,7 +8,7 @@ let puzzles100 = puzzles.slice(0, 20)
 
 
 
-it('basic usage', () => {
+it('basic usage only', () => {
 
 
         const fundamentals: [string, string][] = [
@@ -87,7 +87,7 @@ queen2 *Captures rook2 *becomes queen3
         ]
 
         let orch = new Orchestrator(new Map([
-                ...fundamentals
+                ...fundamentals,
         ]))
 
         const res = orch.filterPuzzles(puzzles100)
