@@ -85,13 +85,13 @@ export class CheckFinder {
 
 
         const captures_check = Bitboard.Zero
-        for (let sq_checker of checkers) {
-            for (let sq_blocker of friends) {
-                const direction = position.pieceOn(sq_blocker)!
-                const aa = Attacks.pieceCheck(sq_blocker, occupied, strip_color_except_pawns(direction))
-                const capture = aa.has(sq_blocker)
+        for (let sq_checker of this.checkers) {
+            for (let sq_capturer of friends) {
+                const direction = position.pieceOn(sq_capturer)!
+                const aa = Attacks.pieceCheck(sq_capturer, occupied, strip_color_except_pawns(direction))
+                const capture = aa.has(sq_checker)
                 if (capture) {
-                    captures_check.set(sq_blocker)
+                    captures_check.set(sq_capturer)
                 }
             }
         }

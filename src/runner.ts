@@ -117,7 +117,7 @@ export class ScriptFilter {
         const solutionMoves = DebugMove.ucisAsMoves(pos.position, pos.solution)
         let firstLine = DebugMove.movesAsUcis(pos.position, moves.getLinesWithOpponentMoves(solutionMoves)[0])
 
-        if (firstLine === undefined) {
+        if (firstLine === undefined || firstLine.length === 0) {
             result.negative = true
         }
 

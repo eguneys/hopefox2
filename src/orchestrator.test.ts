@@ -4,7 +4,7 @@ import { Orchestrator } from './orchestrator.js'
 import fs from 'node:fs'
 import { read_csv } from './db.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(0, 20)
+let puzzles100 = puzzles.slice(15, 16)
 
 
 
@@ -87,7 +87,12 @@ queen2 *Captures rook2 *becomes queen3
         ]
 
         let orch = new Orchestrator(new Map([
-                ...fundamentals,
+                ['queen_backrank_block_mate.gof', `
+queen_t *Checks king_o *becomes queen2
+                                  .notAttacked
+rook_t *Blocks Check *becomes rook2
+queen2 *Captures rook2 *becomes queen3
+`.trim()],
         ]))
 
         const res = orch.filterPuzzles(puzzles100)

@@ -43,7 +43,7 @@ export class Orchestrator {
         }
 
         let false_preview = 'All done!'
-        if (negative_preview = 'All done!') {
+        if (negative_preview === 'All done!') {
             for (let negative of falses) {
                 if (!exacts.find(_ => _.csv_puzzle.id === negative.csv_puzzle.id)) {
                     false_preview = negative.preview
