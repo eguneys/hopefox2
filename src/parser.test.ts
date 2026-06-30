@@ -53,3 +53,20 @@ it('*EvadesTo *becomes', () => {
     expect(res[0].becomes).toBeDefined()
 
 })
+
+
+it('.notAttacked beginDot', () => {
+
+    let parser = new Parser(`
+queen_t *Checks king_o *becomes queen2
+                                  .notAttacked
+`.trim())
+    let res = parser.parse()
+
+    expect(res.length).toBe(2)
+
+    expect(res[1].action.symbol!.name).toEqual('notAttacked')
+    expect(res[1].to).toBeUndefined()
+    expect(res[1].from.symbol.name).toEqual('queen')
+
+})

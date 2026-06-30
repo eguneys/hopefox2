@@ -124,7 +124,7 @@ export class History {
         let symbols = program.flatMap(ins => {
             let result = []
             result.push(ins.from.symbol!)
-            result.push(ins.to.symbol!)
+            if (ins.to) result.push(ins.to.symbol!)
             result.push(ins.action.symbol!)
             if (ins.and) result.push(ins.and.symbol!)
             if (ins.becomes) result.push(ins.becomes.symbol!)

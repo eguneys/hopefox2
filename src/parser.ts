@@ -173,7 +173,7 @@ export class Lexer {
 export type Instruction = {
     from: Token
     action: Token
-    to: Token
+    to?: Token
     and?: Token
     becomes?: Token
 }
@@ -365,7 +365,6 @@ export class Parser {
                     throw `expecting symbol after ${dot.kind === TokenType.Dot ? 'dot' : 'star'} Line:${dot.line} Column:${dot.end_column}`
                 }
 
-
                 let to = this.getNextTokenAfter(action.line, action.end_column)
 
                 if (!to || to.kind !== TokenType.Symbol) {
@@ -400,7 +399,15 @@ export class Parser {
 
                 let to = this.getNextTokenAfter(action.line, action.end_column)
 
-                if (!to || to.kind !== TokenType.Symbol) {
+                if (!to) {
+
+                    return {
+                        from,
+                        action
+                    }
+                }
+
+                if (to.kind !== TokenType.Symbol) {
                     throw `expecting symbol after action Line:${action.line} Column:${action.begin_column}`
                 }
 
