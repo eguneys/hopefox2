@@ -106,8 +106,7 @@ export class CheckFinder {
 
 
     get isCheckmate() {
-        return
-        this.checkers.isNotEmpty()
+        return this.checkers.isNotEmpty()
             && this.safe_evades.isEmpty()
             && this.blocks_check.isEmpty()
             && this.captures_check.isEmpty()

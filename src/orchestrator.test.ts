@@ -8,7 +8,7 @@ let puzzles100 = puzzles.slice(0, 20)
 
 
 
-it('basic usage only', () => {
+it('basic usage', () => {
 
 
         const fundamentals: [string, string][] = [

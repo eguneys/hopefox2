@@ -650,6 +650,10 @@ export class Move {
     isNone() {
         return this.from === this.to
     }
+
+    equals(other: Move) {
+        return this.kind === other.kind && this.from === other.from && this.to === other.to && this.promotion === other.promotion
+    }
 }
 
 

@@ -58,4 +58,31 @@ export class DebugMove {
     }
 
 
+
+    static ucisAsMoves = (pos: Position, ucis: string[]) => {
+        let result = []
+        let ipos = Position.clone(pos)
+        for (let uci of ucis) {
+            let move = Uci.parse(uci, ipos)
+            result.push(move)
+            ipos.makeMove(move)
+        }
+        return result
+    }
+
+    static positionAsUcis = (pos: Position, ucis: string[]) => {
+        let result = []
+        let ipos = Position.clone(pos)
+        for (let uci of ucis) {
+            let move = Uci.parse(uci, ipos)
+            result.push(move)
+            ipos.makeMove(move)
+        }
+        return ipos
+    }
+
+
+
+
+
 }
