@@ -14,22 +14,36 @@ export class Orchestrator {
     }
 
     filterPuzzles(puzzles: CsvPuzzle[]) {
-        let negative_preview = ''
-
         const filters = new Map([
             ['exact', exact_filter],
             ['negative', negative_filter]
         ])
 
+        let negatives = []
+        let exacts = []
+
+        let nb_exact = 0
+
         for (let [name, script] of this.scripts) {
-
-
             let result = script.filterPuzzles(puzzles, filters)
 
-            negative_preview += result.get('negative')!.slice(0, 3).map(_ => _.preview).join('\n')
+            nb_exact += result.get('exact')!.length
+
+            exacts.push(...result.get('exact')!)
+            negatives.push(...result.get('negative')!)
         }
 
+        let negative_preview = 'All done!'
+        for (let negative of negatives) {
+            if (!exacts.find(_ => _.csv_puzzle.id === negative.csv_puzzle.id)) {
+                negative_preview = negative.preview
+                break
+            }
+        }
+
+
         return `
+Exact: ${nb_exact}
 Negative:
 ${negative_preview}
 `.trim()

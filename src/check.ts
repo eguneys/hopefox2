@@ -22,6 +22,7 @@ export class CheckFinder {
     safe_evades: Bitboard
     check_rays: Bitboard[]
     blocks_check: Bitboard
+    captures_check: Bitboard
 
     constructor(private position: Position, private color = position.turn) {
         this.checkers = Bitboard.Zero
@@ -81,6 +82,22 @@ export class CheckFinder {
 
         this.blocks_check = blocks_check
 
+
+
+        const captures_check = Bitboard.Zero
+        for (let sq_checker of checkers) {
+            for (let sq_blocker of friends) {
+                const direction = position.pieceOn(sq_blocker)!
+                const aa = Attacks.pieceCheck(sq_blocker, occupied, strip_color_except_pawns(direction))
+                const capture = aa.has(sq_blocker)
+                if (capture) {
+                    captures_check.set(sq_blocker)
+                }
+            }
+        }
+
+        this.captures_check = captures_check
+
     }
 
     get isCheck() {
@@ -89,6 +106,10 @@ export class CheckFinder {
 
 
     get isCheckmate() {
-        return this.checkers.isNotEmpty() && this.safe_evades.isEmpty() && this.blocks_check.isEmpty()
+        return
+        this.checkers.isNotEmpty()
+            && this.safe_evades.isEmpty()
+            && this.blocks_check.isEmpty()
+            && this.captures_check.isEmpty()
     }
 }

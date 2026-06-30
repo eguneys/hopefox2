@@ -55,6 +55,7 @@ export class ScriptRunner {
 
 export class Bucket {
 
+
     negative!: boolean
     shorter!: boolean
     longer!: boolean
@@ -83,7 +84,7 @@ export class Bucket {
         return this.exact_moves && this.exact_solution
     }
 
-    constructor(public preview: string) { }
+    constructor(public preview: string, public csv_puzzle: CsvPuzzle) { }
 }
 
 export class ScriptFilter {
@@ -105,7 +106,7 @@ export class ScriptFilter {
 
         fullPreview += preview
 
-        let result = new Bucket(fullPreview)
+        let result = new Bucket(fullPreview, pos)
 
         if (moves.length === 0) {
             result.negative = true
