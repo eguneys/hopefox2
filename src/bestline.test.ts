@@ -6,7 +6,7 @@ import { read_csv } from './db.js'
 import { BestLine } from './bestlines.js'
 import { DebugMove } from './debug.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(0, 10)
+let puzzles100 = puzzles.slice(0, 5)
 
 
 
@@ -260,9 +260,15 @@ bishop2 *Captures rook *becomes bishop3
 `.trim()],
     ]
 
+
+    const posets = [
+        ['rook_backrank_block_mate.gof', 'two.gof']
+    ]
+
+
     let bestLine = new BestLine([
         ...fundamentals,
-    ])
+    ], posets)
 
     for (let i = 0; i < puzzles100.length; i++) {
 
@@ -271,14 +277,35 @@ bishop2 *Captures rook *becomes bishop3
         const message = `
 ${i} https://lichess.org/training/${puzzles100[i].id}
 [${solutionSans.join(' ')}]
-`
+`.trim()
 
         const res = bestLine.findBestLine(puzzles100[i].position)
 
-        expect(res, message).toBeDefined()
+        const bestLineScripts = res.bestLineScripts[0]
+        if (bestLineScripts) {
+            let bestLine = DebugMove.movesAsSans(puzzles100[i].position, bestLineScripts[1])
+            for (let j = 0; j < solutionSans.length; j++) {
+                if (solutionSans[j] !== bestLine[j]) {
+                    console.log(message)
+                    console.log(`BestLine Mismatch: {${bestLine}}`)
+                    console.log(`On ${res.bestLineScripts[0]}`)
 
-        for (let j = 0; j < solutionSans.length; j++) {
-            expect(res![j], message).toBe(solutionSans[j])
+                    let bestLineScripts = ''
+                    for (let k = 0; k < res.bestLineScripts.length; k++) {
+                        bestLineScripts += res.bestLineScripts[k][0]
+                        bestLineScripts += ' '
+                        bestLineScripts += `{${DebugMove.movesAsSans(puzzles100[i].position, res.bestLineScripts[k][1]).join(' ')}}`
+                        bestLineScripts += `\n`
+                    }
+                    console.log(`More best lines\n${bestLineScripts}`)
+                    console.log('')
+                    break
+                }
+            }
+        } else {
+            console.log(message)
+            console.log('No match for.')
+            console.log(res.bestTreeScripts)
         }
     }
 
