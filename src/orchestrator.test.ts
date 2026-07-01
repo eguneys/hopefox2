@@ -4,7 +4,7 @@ import { Orchestrator } from './orchestrator.js'
 import fs from 'node:fs'
 import { read_csv } from './db.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(0, 50)
+let puzzles100 = puzzles.slice(0, 60)
 
 
 
@@ -209,6 +209,55 @@ pawn_t *Pushes sq *becomes pawn2
 knight_t *MovesTo sq2 *becomes knight2
 pawn2 *Pushes sq3 *becomes pawn3
 `.trim()],
+
+                ['ctb_queen_fork.gof', `
+queen_t *Forks king_o *and bishop_o *becomes queen2
+king *EvadesTo sq *becomes king2
+queen2 *Captures bishop *becomes queen3
+`.trim()],
+
+                ['ctn_rook_fork.gof', `
+rook_t *Forks king_o *and knight_o *becomes rook2
+king *EvadesTo sq *becomes king2
+rook2 *Captures knight *becomes rook3
+`.trim()],
+
+                ['ctr_hang_after_exchange.gof', `
+queen_t *Captures queen2_o *becomes queen2
+rook_t *Captures queen2 *becomes rook2
+rook3_t *Captures rook2 *becomes rook4
+`.trim()],
+
+                ['ctn_unpin_queen.gof', `
+bishop_o .eyesThrough queen_t *through knight_t
+knight *Captures knight2_o *becomes knight3
+                      .hanging
+bishop *Captures queen_o *becomes bishop2
+knight3 *Captures queen2_o *becomes knight4
+`.trim()],
+
+
+                ['bmate_rook_bishop_block.gof', `
+queen_t *Checks king_o *becomes queen2
+bishop_t *Blocks Check *becomes bishop2
+                                .hanging
+queen2 *Captures bishop2 *becomes queen3
+       .Checks2 king
+rook_t *Blocks Check2 *becomes rook2
+                                .hanging
+queen3 *Captures rook2 *becomes queen4
+       .Checks2 king
+`.trim()],
+
+
+
+                ['ctr_bishop_fork.gof', `
+bishop_t *Forks rook_o *and king_o *becomes bishop2
+king *EvadesTo sq *becomes king2
+bishop2 *Captures rook *becomes bishop3
+`.trim()],
+
+
 
 
         ]
