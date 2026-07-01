@@ -6,7 +6,7 @@ import { read_csv } from './db.js'
 import { BestLine } from './bestlines.js'
 import { DebugMove } from './debug.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(0, 5)
+let puzzles100 = puzzles.slice(0, 60)
 
 
 
@@ -262,7 +262,13 @@ bishop2 *Captures rook *becomes bishop3
 
 
     const posets = [
-        ['rook_backrank_block_mate.gof', 'two.gof']
+        ['rook_backrank_block_mate.gof', 'two.gof'],
+        ['rook_queen_liquidate.gof', 'queen_mate.gof'],
+        ['queen_backrank_sacrifice_block_mate.gof', 'queen_mate.gof'],
+        ['qzmate_corner_with_rook.gof', 'two.gof'],
+        ['bmate_bishop_help_double_rook_exchange.gof', 'two.gof'],
+        ['bmate_rook_bishop_block.gof', 'queen_mate.gof', 'bmate_queen_block_bishop.gof', 'queen_backrank_block_mate.gof'],
+        ['ctb_rook_exchange.gof', 'two.gof'],
     ]
 
 
@@ -273,6 +279,7 @@ bishop2 *Captures rook *becomes bishop3
     for (let i = 0; i < puzzles100.length; i++) {
 
         const solutionSans = DebugMove.ucisAsSans(puzzles100[i].position, puzzles100[i].solution)
+        const solutionMoves = DebugMove.ucisAsMoves(puzzles100[i].position, puzzles100[i].solution)
 
         const message = `
 ${i} https://lichess.org/training/${puzzles100[i].id}
@@ -281,31 +288,27 @@ ${i} https://lichess.org/training/${puzzles100[i].id}
 
         const res = bestLine.findBestLine(puzzles100[i].position)
 
-        const bestLineScripts = res.bestLineScripts[0]
-        if (bestLineScripts) {
-            let bestLine = DebugMove.movesAsSans(puzzles100[i].position, bestLineScripts[1])
-            for (let j = 0; j < solutionSans.length; j++) {
-                if (solutionSans[j] !== bestLine[j]) {
-                    console.log(message)
-                    console.log(`BestLine Mismatch: {${bestLine}}`)
-                    console.log(`On ${res.bestLineScripts[0]}`)
+        let errors = ''
 
-                    let bestLineScripts = ''
-                    for (let k = 0; k < res.bestLineScripts.length; k++) {
-                        bestLineScripts += res.bestLineScripts[k][0]
-                        bestLineScripts += ' '
-                        bestLineScripts += `{${DebugMove.movesAsSans(puzzles100[i].position, res.bestLineScripts[k][1]).join(' ')}}`
-                        bestLineScripts += `\n`
+        outer: for (let k = 0; k < res.bestTreeScripts.length; k++) {
+            const bestLineScripts = res.bestTreeScripts[k][1].getLinesWithOpponentMoves(solutionMoves)
+            if (bestLineScripts) {
+                const bestLine = DebugMove.movesAsSans(puzzles100[i].position, bestLineScripts[0])
+                for (let j = 0; j < solutionSans.length; j++) {
+                    if (solutionSans[j] !== bestLine[j]) {
+                        if (k > 0) errors += '\n'
+                        errors += (`${res.bestTreeScripts[k][0]}: `)
+                        errors += (`{${bestLine.join(' ')}}`)
+                        continue outer
                     }
-                    console.log(`More best lines\n${bestLineScripts}`)
-                    console.log('')
-                    break
                 }
+                if (errors.length === 0) break
             }
-        } else {
+        }
+
+        if (errors.length > 0) {
             console.log(message)
-            console.log('No match for.')
-            console.log(res.bestTreeScripts)
+            console.log(errors)
         }
     }
 
