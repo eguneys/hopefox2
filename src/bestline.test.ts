@@ -198,7 +198,7 @@ rook_t *Captures queen4 *becomes rook2
 
         ['ctq_knight_fork2.gof', `
 knight_t *Forks king_o *and queen_o *becomes knight2
-king *Captures pawn *becomes king2
+king *Captures pawn_o *becomes king2
 knight2 *Captures queen *becomes knight3
 `.trim()],
 
@@ -260,21 +260,76 @@ bishop2 *Captures rook *becomes bishop3
 `.trim()],
     ]
 
-
     const posets = [
-        ['rook_backrank_block_mate.gof', 'two.gof'],
-        ['rook_queen_liquidate.gof', 'queen_mate.gof'],
-        ['queen_backrank_sacrifice_block_mate.gof', 'queen_mate.gof'],
-        ['qzmate_corner_with_rook.gof', 'two.gof'],
-        ['bmate_bishop_help_double_rook_exchange.gof', 'two.gof'],
-        ['bmate_rook_bishop_block.gof', 'queen_mate.gof', 'bmate_queen_block_bishop.gof', 'queen_backrank_block_mate.gof'],
-        ['ctb_rook_exchange.gof', 'two.gof'],
+        ['rook_backrank_block_mate.gof', 'rook_bishop_corner_mate.gof', 'two.gof'],
+        ['rook_backrank_block_mate.gof', 'rook_bishop_corner_mate.gof', 'push_pawns.gof', 'two.gof'],
+        ['rook_queen_liquidate.gof', 'queen_mate.gof', 'qzmate_corner_with_rook.gof', 'push_pawns.gof', 'ctb_queen_fork.gof'],
+        ['rook_queen_liquidate.gof', 'queen_mate.gof', 'qzmate_corner_with_rook.gof', 'push_pawns.gof'],
+        ['rook_backrank_block_mate.gof', 'rook_bishop_corner_mate.gof', 'nmate_in1.gof', 'push_pawns.gof', 'two.gof'],
+        ['queen_backrank_block_mate.gof', 'bmate_queen_block_queen.gof', 'queen_mate.gof'],
+        ['bmate_rook_capture_queen_block.gof', 'two.gof', 'rook_bishop_corner_mate.gof', 'push_pawns.gof'],
+        ['queen_backrank_sacrifice_block_mate.gof', 'ctb_queen_fork.gof', 'bmate_queen_block_queen.gof', 'qzmate_corner_with_rook.gof', 'queen_mate.gof'],
+        ['bmate_bishop_help_double_rook_exchange.gof', 'two.gof', 'skewer_rook_king_rook.gof', 'push_pawns.gof'],
+        ['qzmate_corner_with_rook.gof', 'two.gof', 'ctn_rook_fork.gof', 'push_pawns.gof', 'queen_mate.gof'],
+        ['rook_bishop_corner_mate.gof', 'two.gof'],
+        ['ctr_bishop_fork.gof', 'push_pawns.gof'],
+        ['ctq_knight_fork2.gof', 'ctq_knight_fork3.gof', 'ctq_knight_fork.gof', 'push_pawns.gof', 'nmate_in1.gof'],
+        ['ctq_knight_fork.gof', 'ctq_knight_fork3.gof', 'push_pawns.gof', 'nmate_in1.gof', 'queen_mate.gof']
+
+    ]
+
+    const posets3 = [['ctb_hanging_queen_liquidate_checking_queen.gof',
+        'queen_mate.gof',
+        'queen_backrank_block_mate.gof',
+        'bmate_queen_block_queen.gof',
+        'bmate_queen_block_bishop.gof',
+        'push_pawns.gof',
+        'ctb_queen_fork.gof'],
+    ['bmate_queen_block_queen.gof',
+        'queen_mate.gof'],
+    ['bmate_queen_block_bishop.gof',
+        'queen_mate.gof',
+        'push_pawns.gof'],
+    ['ctq_knight_fork.gof',
+        'ctq_knight_fork3.gof',
+        'queen_mate.gof',
+        'nmate_in1.gof',
+        'ctq_knight_fork2.gof',
+        'push_pawns.gof'],
+    ['skewer_rook_king_rook.gof',
+        'two.gof',
+        'rook_bishop_corner_mate.gof'],
+    ['ctb_rook_exchange.gof',
+        'two.gof',
+        'skewer_rook_king_rook.gof'],
+    ['ctq_knight_fork2.gof',
+        'ctq_knight_fork.gof',
+        'ctq_knight_fork3.gof',
+        'nmate_in1.gof',
+        'push_pawns.gof'],
+    ['ctn_rook_fork.gof',
+        'two.gof',
+        'push_pawns.gof'],
+    ['ctr_hang_after_exchange.gof',
+        'push_pawns.gof'],
+    ['ctb_queen_fork.gof',
+        'queen_mate.gof',
+        'queen_backrank_block_mate.gof',
+        'bmate_queen_block_queen.gof',
+        'bmate_queen_block_bishop.gof'],
+    ['ctn_unpin_queen.gof',
+        'push_pawns.gof'],
+    ['bmate_rook_bishop_block.gof',
+        'queen_mate.gof',
+        'queen_backrank_block_mate.gof',
+        'bmate_queen_block_bishop.gof',
+        'push_pawns.gof']
     ]
 
 
     let bestLine = new BestLine([
         ...fundamentals,
-    ], posets)
+    ], [...posets, ...posets3])
 
     for (let i = 0; i < puzzles100.length; i++) {
 
@@ -282,33 +337,46 @@ bishop2 *Captures rook *becomes bishop3
         const solutionMoves = DebugMove.ucisAsMoves(puzzles100[i].position, puzzles100[i].solution)
 
         const message = `
-${i} https://lichess.org/training/${puzzles100[i].id}
+${puzzles100[i].index} https://lichess.org/training/${puzzles100[i].id}
 [${solutionSans.join(' ')}]
 `.trim()
 
         const res = bestLine.findBestLine(puzzles100[i].position)
 
+        let error_matches = ''
         let errors = ''
 
         outer: for (let k = 0; k < res.bestTreeScripts.length; k++) {
             const bestLineScripts = res.bestTreeScripts[k][1].getLinesWithOpponentMoves(solutionMoves)
             if (bestLineScripts) {
                 const bestLine = DebugMove.movesAsSans(puzzles100[i].position, bestLineScripts[0])
+                let is_mismatch = false
                 for (let j = 0; j < solutionSans.length; j++) {
                     if (solutionSans[j] !== bestLine[j]) {
-                        if (k > 0) errors += '\n'
-                        errors += (`${res.bestTreeScripts[k][0]}: `)
-                        errors += (`{${bestLine.join(' ')}}`)
-                        continue outer
+                        is_mismatch = true
+                        break
                     }
                 }
-                if (errors.length === 0) break
+
+                if (is_mismatch) {
+                    if (errors.length > 0) errors += '\n'
+                    errors += (`${res.bestTreeScripts[k][0]}: `)
+                    errors += (`{${bestLine.join(' ')}}`)
+                } else {
+                    if (errors.length === 0) break
+                    if (error_matches.length > 0) error_matches += '\n'
+                    error_matches += (`${res.bestTreeScripts[k][0]}: `)
+                    error_matches += (`{${bestLine.join(' ')}}`)
+                }
             }
         }
 
         if (errors.length > 0) {
             console.log(message)
             console.log(errors)
+            console.log(`Error matches: `)
+            console.log(error_matches)
+            console.log('')
         }
     }
 
