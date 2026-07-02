@@ -6,7 +6,7 @@ import { read_csv } from './db.js'
 import { BestLine } from './bestlines.js'
 import { DebugMove } from './debug.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(0, 80)
+let puzzles100 = puzzles.slice(0, 90)
 
 
 
@@ -15,6 +15,87 @@ it('basic usage only', () => {
 
 
         let single
+
+
+        let more80: [string, string][] = [
+                ['qzm_corner_rook_help.gof', `
+queen_t *Checks king_o *becomes queen2
+king *EvadesTo sq *becomes king2
+queen2 *Checks king2 *becomes queen3
+                                 .onlyDefendedBy rook_o
+`.trim()],
+                ['ctn_hanging_vs_king.gof', `
+knight_o .hanging
+king_t *Captures knight *becomes king2
+bishop_t *Captures bishop2_o *becomes bishop3
+                                         .hanging
+queen_t *Captures bishop3 *becomes queen2
+`.trim()],
+
+                ['lure_dc_double_rook_vs_knight.gof', `
+rook_t *Captures pawn_o *becomes rook2
+       .Checks king_t
+knight_t *Captures rook2 *becomes knight2
+rook3_t *Captures knight2 *becomes rook4
+                                      .onlyDefendedBy bishop_o
+`.trim()],
+
+                ['ctr_bishop_discovery_double_rook.gof', `
+rook_t .eyesThrough rook2_o .through bishop_t
+rook2_o .onlyDefendedBy rook3_o
+bishop *Checks king_o *becomes bishop2
+pawn_t *PushBlocks  Check *becomes pawn2
+rook *Captures rook2 *becomes rook4
+`.trim()],
+
+
+                ['pp_rook_block_defend_promotion.gof', `
+pawn_t *Pushes sq *becomes pawn2
+rook_t *Checks pawn2 *becomes rook2
+rook3_t *Checks king_o *becomes rook4
+                                   .onlyDefendedBy pawn2
+`.trim()],
+
+
+                ['ctb_double_pressure_hanging.gof', `
+rook_t *Captures bishop_o *becomes rook2
+       .Checks king_t
+rook3_t *Captures rook2 *becomes rook4
+                                    .hanging
+bishop2_t *Captures rook4 *becomes bishop3
+`.trim()],
+                ['mate_q_sidezone.gof', `
+queen_t *Checks king_o *becomes queen2
+Check .isUnblockableFor king
+`.trim()],
+
+                ['ctq_bishop_pin.gof', `
+bishop_t *Pins queen_o .to king_o *becomes bishop2
+bishop3_t *Unpins king *and queen *becomes bishop4
+bishop2 *Captures queen *becomes bishop5
+`.trim()],
+
+
+
+        ]
+
+        //single = [more80[more80.length - 1]]
+
+
+        let more_posets80: string[][] = [
+                ['ctr_knight_fork.gof', 'bm_knight_check_lure.gof', 'skewer_rook_king_rook.gof', 'nmate_in1.gof', 'two.gof'],
+                ['qzm_corner_rook_help.gof', 'bmate_queen_block_queen.gof', 'queen_mate.gof', 'push_pawns.gof', 'two.gof'],
+                ['ctn_hanging_vs_king.gof', 'push_pawns.gof'],
+                ['queen_backrank_block_mate.gof', 'qzm_corner_rook_help.gof', 'brmate_qf7_capture.gof', 'bmate_queen_block_queen.gof', 'qzmate_corner_with_rook.gof', 'queen_mate.gof', 'two.gof'],
+                ['lure_dc_double_rook_vs_knight.gof', 'push_pawns.gof', 'two.gof'],
+                ['ctr_bishop_discovery_double_rook.gof', 'push_pawns.gof'],
+                ['pp_rook_block_defend_promotion.gof', 'two.gof'],
+                ['ctb_double_pressure_hanging.gof', 'two.gof'],
+                ['qzm_corner_rook_help.gof', 'mate_q_sidezone.gof', 'bmate_queen_block_queen.gof', 'push_pawns.gof', 'queen_mate.gof', 'two.gof'],
+                ['mate_q_sidezone.gof', 'bmate_queen_block_queen.gof', 'queen_mate.gof'],
+                ['ctq_bishop_pin.gof', 'push_pawns.gof'],
+        ]
+
 
         let more70: [string, string][] = [
                 ['bm_knight_check_lure.gof', `
@@ -145,6 +226,20 @@ rook3_t *Captures rook2 *becomes rook4
                 ['ctb_rook_exchange.gof', 'two.gof'],
                 ['bmate_bishop_help_double_rook_exchange.gof', 'push_pawns.gof', 'two.gof'],
                 ['rook_backrank_block_mate.gof', 'bm_knight_check_lure.gof', 'rook_bishop_corner_mate.gof', 'nmate_in1.gof', 'push_pawns.gof', 'two.gof'],
+                ['sq_knight_fork_qs.gof', 'mate_q_sidezone.gof', 'ctb_queen_fork.gof', 'push_pawns.gof', 'nmate_in1.gof', 'ctr_knight_fork.gof', 'queen_mate.gof'],
+                ['ctq_rook_fork.gof', 'mate_q_sidezone.gof', 'qzm_corner_rook_help.gof', 'bmate_queen_block_bishop.gof', 'queen_mate.gof', 'two.gof'],
+                ['bmate_qs_v_rook.gof', 'mate_qs_corner_with_rook.gof', 'mate_q_sidezone.gof', 'qzm_corner_rook_help.gof', 'ctb_queen_fork.gof', 'qzmate_corner_with_rook.gof', 'queen_mate.gof'],
+                ['brmate_qf7_capture.gof', 'mate_q_sidezone.gof', 'qzm_corner_rook_help.gof', 'push_pawns.gof', 'queen_mate.gof'],
+                ['bmate_qs_v_rook.gof', 'mate_q_sidezone.gof', 'qzm_corner_rook_help.gof', 'push_pawns.gof', 'qzmate_corner_with_rook.gof', 'queen_mate.gof'],
+                ['ctb_queen_fork.gof', 'qzm_corner_rook_help.gof', 'bmate_queen_block_bishop.gof', 'bmate_queen_block_queen.gof', 'queen_backrank_block_mate.gof', 'queen_mate.gof'],
+                ['rook_queen_liquidate.gof', 'mate_q_sidezone.gof', 'qzm_corner_rook_help.gof', 'push_pawns.gof', 'qzmate_corner_with_rook.gof', 'queen_mate.gof'],
+                ['ctq_knight_fork.gof', 'ctq_knight_fork3.gof', 'mate_q_sidezone.gof', 'push_pawns.gof', 'nmate_in1.gof', 'queen_mate.gof'],
+                ['bmate_queen_block_bishop.gof', 'mate_q_sidezone.gof', 'push_pawns.gof', 'queen_mate.gof'],
+                ['qzmate_corner_with_rook.gof', 'mate_q_sidezone.gof', 'qzm_corner_rook_help.gof', 'ctn_rook_fork.gof', 'push_pawns.gof', 'queen_mate.gof', 'two.gof'],
+                ['queen_backrank_sacrifice_block_mate.gof', 'qzm_corner_rook_help.gof', 'ctb_queen_fork.gof', 'bmate_queen_block_queen.gof', 'qzmate_corner_with_rook.gof', 'queen_mate.gof'],
+                ['queen_backrank_block_mate.gof', 'mate_q_sidezone.gof', 'bmate_queen_block_queen.gof', 'queen_mate.gof'],
+                ['rook_queen_liquidate.gof', 'mate_q_sidezone.gof', 'push_pawns.gof', 'qzmate_corner_with_rook.gof', 'queen_mate.gof'],
+                ['rook_queen_liquidate.gof', 'mate_q_sidezone.gof', 'qzm_corner_rook_help.gof', 'ctb_queen_fork.gof', 'push_pawns.gof', 'qzmate_corner_with_rook.gof', 'queen_mate.gof'],
         ]
 
         const more_posets = [
@@ -476,8 +571,9 @@ bishop2 *Captures rook *becomes bishop3
                         ...fundamentals,
                         ...more,
                         ...more70,
+                        ...more80,
                 ]
-                , [...posets, ...posets3, ...more_posets, ...recall_posets, ...more_posets70])
+                , [...posets, ...posets3, ...more_posets, ...recall_posets, ...more_posets70, ...more_posets80])
 
         let all_done = true
 

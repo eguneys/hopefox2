@@ -374,6 +374,17 @@ export function allDefendersOf(position: Position, square: Square) {
     return result
 }
 
+export function allAttacksOfColorWithout(position: Position, color: Color, square: Square) {
+    let result = Bitboard.Zero
+    const occupied = position.occupied()
+    for (let sq_from of position.bb_color(color).without(square)) {
+        const direction = position.pieceOn(sq_from)!
+        const aa = pieceCheck(sq_from, occupied, strip_color_except_pawns(direction))
+        result = result.bitor(aa)
+    }
+    return result
+}
+
 
 
 export function allAttacksOfColor(position: Position, color: Color) {

@@ -39,6 +39,41 @@ class MatchFilters {
     }
 
 
+
+    static isUnblockableFor = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const to_symbol = ins.to!.symbol!
+        const To = history.table.getColumn(to_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            const bb_to = To[off]
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+            for (let sq_for of bb_to2) {
+                const blocks = Attacks.allAttacksOfColorWithout(position, position.turn, sq_for)
+
+                if (blocks.bitand(bb_from2).isEmpty()) {
+                    history.table.duplicateRow(off)
+                    history.nodes.appendChild(off, Move.None)
+                }
+            }
+        }
+
+    }
+
+
+
+
+
+
+
     static onlyDefendedBy = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const to_symbol = ins.to!.symbol!
@@ -402,8 +437,6 @@ class MatchActions {
                 }
             }
         }
-
-
     }
 
 
@@ -484,6 +517,115 @@ class MatchActions {
 
 
     }
+
+
+
+    static unpins = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const unpinA_symbol = ins.to!.symbol!
+        const unpinB_symbol = ins.and!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const UnpinA = history.table.getColumn(unpinA_symbol)
+        const UnpinB = history.table.getColumn(unpinB_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_unpinA = UnpinA[off]
+            const bb_unpinB = UnpinB[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            for (let sq_unpinA of bb_unpinA) {
+                for (let sq_unpinB of bb_unpinB) {
+
+                    const bb_unpin = Attacks.rayBetweenFromTo(sq_unpinA, sq_unpinB)
+                    for (let sq_from of bb_from2) {
+                        const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+                        const bb_block = bb_unpin.bitand(aa_to)
+
+                        for (let sq_block of bb_block) {
+
+                            history.table.duplicateRow(off)
+
+                            history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                            history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_block))
+                            history.table.setLastRow(unpinA_symbol, Bitboard.fromSquare(sq_unpinA))
+                            history.table.setLastRow(unpinB_symbol, Bitboard.fromSquare(sq_unpinB))
+
+                            let move = Move.normal(sq_from, sq_block)
+                            history.nodes.appendChild(off, move)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    static pins = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const through_symbol = ins.to!.symbol!
+        const to_symbol = ins.and!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+        const Through = history.table.getColumn(through_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_to = To[off]
+            const bb_through = Through[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+            const bb_through2 = bb_through.bitand(SymbolBitboard.square(position, through_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+
+                for (let sq_from2 of aa_to) {
+                    const aa_to2 = SymbolBitboard.movesTo(position, from_symbol, sq_from2)
+
+                    const bb_through3 = aa_to2.bitand(bb_through2)
+
+                    for (let sq_through of bb_through3) {
+                        const aa_through = SymbolBitboard.movesThrough(position, from_symbol, sq_from2, sq_through).without(sq_through)
+
+                        const aa_through2 = aa_through.bitdiff(aa_to)
+
+                        const aa_through2_to = aa_through2.bitand(bb_to2)
+
+                        for (let sq_to of aa_through2_to) {
+
+                            history.table.duplicateRow(off)
+
+                            history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                            history.table.setLastRow(to_symbol, Bitboard.fromSquare(sq_to))
+                            history.table.setLastRow(through_symbol, Bitboard.fromSquare(sq_through))
+                            history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_from2))
+
+
+                            let move = Move.normal(sq_from, sq_from2)
+                            history.nodes.appendChild(off, move)
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+
 
     static forks = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
@@ -807,6 +949,12 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
                 MatchActions.captures(ins, history, slice)
             }
         } break
+        case 'isUnblockableFor': {
+            if (ins.becomes) {
+            } else {
+                MatchFilters.isUnblockableFor(ins, history, slice)
+            }
+        } break
         case 'onlyDefendedBy': {
             if (ins.becomes) {
             } else {
@@ -830,6 +978,20 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
                 //MatchActions.evadesTo(ins, history, slice)
             } else {
                 MatchFilters.eyesThrough(ins, history, slice)
+            }
+        } break
+        case 'Pins': {
+            if (ins.becomes) {
+                MatchActions.pins(ins, history, slice)
+            } else {
+                //MatchFilters.eyesThrough(ins, history, slice)
+            }
+        } break
+        case 'Unpins': {
+            if (ins.becomes) {
+                MatchActions.unpins(ins, history, slice)
+            } else {
+                //MatchFilters.eyesThrough(ins, history, slice)
             }
         } break
     }
