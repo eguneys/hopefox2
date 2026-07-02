@@ -46,6 +46,8 @@ export type BestLineResult = {
 }
 
 
+/*
+
 function topologicalSort<T>(items: T[], posets: T[][]) {
     // Build a directed graph of all constraints
     const graph = new Map<T, T[]>();
@@ -96,3 +98,5 @@ function topologicalSort<T>(items: T[], posets: T[][]) {
 
     return result;
 }
+
+*/

@@ -1,0 +1,8 @@
+ctq_br_rook_ex.gof
+rook_t *Checks king_o *becomes rook2
+rook3_t *Blocks Check *becomes rook4
+rook2_t *Captures rook4 *becomes rook5
+        .Forks king .and queen_t
+queen *Captures rook5 *becomes queen2
+                                  .hanging
+bishop *Captures queen2 *becomes bishop2                    

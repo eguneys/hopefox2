@@ -6,12 +6,12 @@ import { read_csv } from './db.js'
 import { BestLine } from './bestlines.js'
 import { DebugMove } from './debug.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(0, 90)
+let puzzles100 = puzzles.slice(0, 100)
 
 
 
 
-it('basic usage only', () => {
+it('basic usage', () => {
 
 
         let single
