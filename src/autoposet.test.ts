@@ -60,6 +60,8 @@ it('basic usage only', () => {
 
     let all_done = true
 
+    let nb_solved = []
+
     for (let i = 0; i < puzzles100.length; i++) {
 
         const solutionSans = DebugMove.ucisAsSans(puzzles100[i].position, puzzles100[i].solution)
@@ -113,12 +115,16 @@ ${puzzles100[i].index} https://lichess.org/training/${puzzles100[i].id}
             }
             console.log('')
             all_done = false
+        } else {
+            nb_solved.push(i)
         }
     }
 
     if (all_done)
         console.log('All done!')
 
+    console.log(`Total Solved: ${nb_solved.length}`)
+    console.log(`Total Scripts: ${fundamentals.length}`)
     console.log(`Total Posets: ${posets.length}`)
 
 
