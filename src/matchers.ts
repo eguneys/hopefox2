@@ -138,7 +138,7 @@ class MatchFilters {
             const bb_checked2 = bb_checked.bitand(SymbolBitboard.square(position, checked_symbol))
 
             for (let sq_from of bb_from2) {
-                const aa_checked = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+                const aa_checked = SymbolBitboard.captures(position, from_symbol, sq_from)
 
                 const bb_checked3 = bb_checked2.bitand(aa_checked)
 
@@ -228,7 +228,7 @@ class MatchActions {
             const bb_captured2 = bb_captured.bitand(SymbolBitboard.square(position, captured_symbol))
 
             for (let sq_from of bb_from2) {
-                const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+                const aa_to = SymbolBitboard.captures(position, from_symbol, sq_from)
 
                 const bb_to2 = bb_captured2.bitand(aa_to)
 
@@ -402,8 +402,6 @@ class MatchActions {
                 }
             }
         }
-
-
     }
 
 
@@ -598,6 +596,38 @@ class SymbolBitboard {
             case 'bishop':
             case 'rook':
             case 'queen': {
+                break
+            }
+        }
+
+        return result
+    }
+
+
+
+    static captures = (position: Position, from_symbol: Symbol, sq_from: Square) => {
+        var result = Bitboard.Zero
+        switch (from_symbol.name) {
+            case 'pawn': {
+                result = Attacks.pawnCapturesColor(sq_from, position.getColor(sq_from))
+                break
+            }
+            case 'knight': {
+                result =
+                    Attacks.knightMovesPlus(sq_from, 'up2')
+                        .bitor(Attacks.knightMovesPlus(sq_from, 'down2'))
+                        .bitor(Attacks.knightMovesPlus(sq_from, 'left2'))
+                        .bitor(Attacks.knightMovesPlus(sq_from, 'right2'))
+                break
+            }
+            case 'king': {
+                result = Attacks.kingMovesAll(sq_from)
+                break
+            }
+            case 'bishop':
+            case 'rook':
+            case 'queen': {
+                result = Attacks.pieceRayHit(sq_from, position.occupied(), from_symbol.name)
                 break
             }
         }

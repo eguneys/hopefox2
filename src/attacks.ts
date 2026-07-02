@@ -369,3 +369,8 @@ export function allAttacksOfColor(position: Position, color: Color) {
     }
     return result
 }
+
+export function pawnCapturesColor(square: Square, color: Color) {
+    return pieceCheck(square, Bitboard.Zero, `${color}-pawn`)
+}
+
