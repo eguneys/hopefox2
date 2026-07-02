@@ -342,6 +342,24 @@ export function pieceCheck(square: Square, occupied: Bitboard, direction: PieceD
     throw `bad piece direction ${direction}`
 }
 
+
+export function pieceBlock(square: Square, occupied: Bitboard, direction: PieceDirections): Bitboard {
+    switch (direction) {
+        case 'queen':
+        case 'bishop':
+        case 'rook': return pieceRayHit(square, occupied, direction)
+        case 'knight': return KnightDirections
+            .reduce((acc, _) => acc.bitor(knightMoves(square, _)), Bitboard.Zero)
+        case 'king': return Directions
+            .reduce((acc, _) => acc.bitor(kingMoves(square, _)), Bitboard.Zero)
+        case 'white-pawn': return kingMoves(square, 'up')
+        case 'black-pawn': return kingMoves(square, 'down')
+    }
+    throw `bad piece direction ${direction}`
+}
+
+
+
 export function directionFromTo(from: Square, to: Square) {
     if (from[0] === to[0]) {
         return Ranks.indexOf(from[1]) < Ranks.indexOf(to[1]) ? 'up' : 'down'
@@ -373,6 +391,20 @@ export function allDefendersOf(position: Position, square: Square) {
     }
     return result
 }
+
+
+export function allBlocksOfColorWithout(position: Position, color: Color, square: Square) {
+    let result = Bitboard.Zero
+    const occupied = position.occupied()
+    for (let sq_from of position.bb_color(color).without(square)) {
+        const direction = position.pieceOn(sq_from)!
+        const aa = pieceBlock(sq_from, occupied, strip_color_except_pawns(direction))
+        result = result.bitor(aa)
+    }
+    return result
+}
+
+
 
 export function allAttacksOfColorWithout(position: Position, color: Color, square: Square) {
     let result = Bitboard.Zero

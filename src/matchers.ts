@@ -59,7 +59,7 @@ class MatchFilters {
             for (let sq_from of bb_from2) {
                 for (let sq_for of bb_to2) {
                     const attack = Attacks.rayBetweenFromTo(sq_from, sq_for)
-                    const blocks = Attacks.allAttacksOfColorWithout(position, position.turn, sq_for)
+                    const blocks = Attacks.allBlocksOfColorWithout(position, position.turn, sq_for)
 
                     if (blocks.bitand(attack).isEmpty()) {
                         history.table.duplicateRow(off)
@@ -71,6 +71,41 @@ class MatchFilters {
 
     }
 
+
+
+    static isUnevadeableFor = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const to_symbol = ins.to!.symbol!
+        const To = history.table.getColumn(to_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            const bb_to = To[off]
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+            for (let sq_from of bb_from2) {
+
+                for (let sq_for of bb_to2) {
+                    const attack = SymbolBitboard.movesThrough(position, from_symbol, sq_from, sq_for)
+
+                    const evades = SymbolBitboard.movesTo(position, to_symbol, sq_for)
+                    const evades2 = evades.bitdiff(position.bb_color(position.getColor(sq_for)))
+
+                    if (evades2.bitdiff(attack).isEmpty()) {
+                        history.table.duplicateRow(off)
+                        history.nodes.appendChild(off, Move.None)
+                    }
+                }
+            }
+        }
+
+    }
 
 
 
@@ -950,6 +985,12 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
         case 'Captures': {
             if (ins.becomes) {
                 MatchActions.captures(ins, history, slice)
+            }
+        } break
+        case 'isUnevadableFor': {
+            if (ins.becomes) {
+            } else {
+                MatchFilters.isUnevadeableFor(ins, history, slice)
             }
         } break
         case 'isUnblockableFor': {

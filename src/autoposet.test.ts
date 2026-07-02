@@ -22,11 +22,27 @@ function read_oof(oof: string): [string, string][] {
         if (script.includes(':')) {
             let [name, preview] = script.split(':')
 
+            if (preview.includes('skip')) {
+                continue
+            }
+
             let m = preview.match(/@preview\(single=(\d*)\)/)
             if (m) {
                 let single = parseInt(m[1])
 
                 let csv = puzzles100.find(_ => _.index === single)!
+
+
+                const solutionSans = DebugMove.ucisAsSans(csv.position, csv.solution)
+                const solutionMoves = DebugMove.ucisAsMoves(csv.position, csv.solution)
+
+                const message = `
+${csv.index} https://lichess.org/training/${csv.id}
+[${solutionSans.join(' ')}]
+`.trim()
+
+                console.log(message)
+
 
                 let test = ScriptRunner.parse(text.join('\n'))
                 console.log(test.runOnPosition(csv.position).preview)

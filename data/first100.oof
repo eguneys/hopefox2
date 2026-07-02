@@ -10,6 +10,7 @@ bishop *Captures queen2 *becomes bishop2
 dumb_rook_mate.gof
 rook_t *Checks king_o *becomes rook2
        .isUnblockableFor king
+       .isUnevadableFor king
 
 dumb_queen_mate.gof
 queen_t *Checks king_o *becomes queen2
@@ -37,3 +38,32 @@ queen_t *Captures rook_o *becomes queen2
 queen3_t *Captures queen2 *becomes queen4
 rook2_t *Captures queen4 *becomes rook3
         .Checks king
+
+ctr_knight_fork.gof
+knight_t *Forks king_o *and rook_o *becomes knight2
+king *EvadesTo sq *becomes king2
+knight2 *Captures rook *becomes knight3
+
+dumb_queen_block_mate.gof
+queen_t *Checks king_o *becomes queen2
+                                  .notAttacked
+rook3_t *Blocks Check *becomes rook4
+queen2 *Captures rook4 *becomes queen3
+
+bm_qs_b_rook.gof
+queen_t *Captures rook_o *becomes queen2
+        .Checks king_t
+bishop_t *Captures queen2 *becomes bishop2
+                                       .hanging
+rook2_t *Captures bishop2 *becomes rook3
+        .Checks king 
+queen3 *Blocks Check *becomes queen4
+                                 .hanging
+rook3 *Captures queen4 *becomes rook4
+      .Checks king
+
+dumb_rook_mate_corner_zone_with_bishop.gof
+rook_t *Checks king_o *becomes rook2
+       .isUnblockableFor king
+king *EvadesTo sq *becomes king2
+rook2 *Checks king2 *becomes rook3
