@@ -50,11 +50,19 @@ it('basic usage only', () => {
     let autoposet = new AutoPoset(fundamentals)
 
     let posets: string[][] = []
-    for (let puzzle of puzzles100)
-        posets.push(autoposet.getPoset(puzzle))
+    for (let puzzle of puzzles100) {
+        let poset = autoposet.getPoset(puzzle)
 
-    posets = posets.filter(_ => _.length > 1)
-    posets = posets.filter(a => !posets.find(b => a !== b && b.join(' ') === a.join(' ')))
+        if (poset.length <= 1) {
+            continue
+        }
+
+        if (posets.find(_ => _.join(' ') === poset.join(' '))) {
+            continue
+        }
+        posets.push(poset)
+    }
+
 
     let bestLine = new BestLine(fundamentals, posets)
 

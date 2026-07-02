@@ -56,12 +56,15 @@ class MatchFilters {
             const bb_to = To[off]
             const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
 
-            for (let sq_for of bb_to2) {
-                const blocks = Attacks.allAttacksOfColorWithout(position, position.turn, sq_for)
+            for (let sq_from of bb_from2) {
+                for (let sq_for of bb_to2) {
+                    const attack = Attacks.rayBetweenFromTo(sq_from, sq_for)
+                    const blocks = Attacks.allAttacksOfColorWithout(position, position.turn, sq_for)
 
-                if (blocks.bitand(bb_from2).isEmpty()) {
-                    history.table.duplicateRow(off)
-                    history.nodes.appendChild(off, Move.None)
+                    if (blocks.bitand(attack).isEmpty()) {
+                        history.table.duplicateRow(off)
+                        history.nodes.appendChild(off, Move.None)
+                    }
                 }
             }
         }

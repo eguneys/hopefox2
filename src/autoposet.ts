@@ -41,10 +41,10 @@ export class AutoPoset {
                 }
 
                 if (is_mismatch) {
-                    poset.unshift(bestTreeScripts[k][0])
+                    poset.push(bestTreeScripts[k][0])
                 } else {
                     if (poset.length === 0) break
-                    poset.push(bestTreeScripts[k][0])
+                    poset.unshift(bestTreeScripts[k][0])
                 }
             }
         }

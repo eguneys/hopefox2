@@ -9,9 +9,11 @@ bishop *Captures queen2 *becomes bishop2
 
 dumb_rook_mate.gof
 rook_t *Checks king_o *becomes rook2
+       .isUnblockableFor king
 
 dumb_queen_mate.gof
 queen_t *Checks king_o *becomes queen2
+        .isUnblockableFor king
 
 dumb_rook_block_mate.gof
 rook_t *Checks king_o *becomes rook2
@@ -24,3 +26,14 @@ rook4_t *Captures rook3 *becomes rook5
                                    .hanging
 rook6_t *Captures rook5 *becomes rook7
 
+ctq_knight_fork.gof
+knight_t *Forks king_o *and queen_o *becomes knight2
+king *EvadesTo sq *becomes king2
+knight2 *Captures queen *becomes knight3
+
+lq_bishop_traps_rook.gof
+queen_t *Captures rook_o *becomes queen2
+        .Checks king_t
+queen3_t *Captures queen2 *becomes queen4
+rook2_t *Captures queen4 *becomes rook3
+        .Checks king
