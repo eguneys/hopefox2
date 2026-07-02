@@ -53,6 +53,9 @@ it('basic usage only', () => {
     for (let puzzle of puzzles100)
         posets.push(autoposet.getPoset(puzzle))
 
+    posets = posets.filter(_ => _.length > 1)
+    posets = posets.filter(a => !posets.find(b => a !== b && b.join(' ') === a.join(' ')))
+
     let bestLine = new BestLine(fundamentals, posets)
 
     let all_done = true
@@ -116,6 +119,7 @@ ${puzzles100[i].index} https://lichess.org/training/${puzzles100[i].id}
     if (all_done)
         console.log('All done!')
 
+    console.log(`Total Posets: ${posets.length}`)
 
 
 })

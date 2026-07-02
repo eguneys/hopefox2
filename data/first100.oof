@@ -5,4 +5,22 @@ rook2_t *Captures rook4 *becomes rook5
         .Forks king .and queen_t
 queen *Captures rook5 *becomes queen2
                                   .hanging
-bishop *Captures queen2 *becomes bishop2                    
+bishop *Captures queen2 *becomes bishop2
+
+dumb_rook_mate.gof
+rook_t *Checks king_o *becomes rook2
+
+dumb_queen_mate.gof
+queen_t *Checks king_o *becomes queen2
+
+dumb_rook_block_mate.gof
+rook_t *Checks king_o *becomes rook2
+rook3_t *Blocks Check *becomes rook4
+rook2 *Checks king *becomes rook5
+
+hr_double_exchange_rooks.gof
+rook_t *Captures rook2_o *becomes rook3
+rook4_t *Captures rook3 *becomes rook5
+                                   .hanging
+rook6_t *Captures rook5 *becomes rook7
+
