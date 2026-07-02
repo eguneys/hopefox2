@@ -6,12 +6,75 @@ import { read_csv } from './db.js'
 import { BestLine } from './bestlines.js'
 import { DebugMove } from './debug.js'
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(60, 70)
+let puzzles100 = puzzles.slice(0, 80)
 
 
 
 
 it('basic usage only', () => {
+
+
+        let single
+
+        let more70: [string, string][] = [
+                ['bm_knight_check_lure.gof', `
+knight_t *Checks king_o *becomes knight2
+king *EvadesTo sq *becomes king2
+rook_t *Checks king2 *becomes rook2
+`.trim()],
+                ['ctr_knight_discovery.gof', `
+rook_t .eyesThrough rook2_o .through knight_t
+knight *Forks king_o * and rook2 *becomes knight2
+queen_t *Captures knight2 *becomes queen2
+rook *Captures rook2 *becomes rook3
+`.trim()],
+
+                ['ctr_knight_fork.gof', `
+knight_t *Forks king_o * and rook_o *becomes knight2
+king *EvadesTo sq *becomes king2
+knight2 *Captures rook *becomes knight3
+`.trim()],
+
+                ['ctq_remove_defender.gof', `
+queen_o .onlyDefendedBy knight_o
+bishop_t *Captures knight *becomes bishop2
+         .Checks king_t
+turn *Captures bishop2 *becomes opponent
+queen2_t *Captures queen *becomes queen3
+`.trim()],
+
+                ['sq_knight_fork_qs.gof', `
+knight_t *Forks king_o *and rook_o *becomes knight2
+queen_t *Captures knight2 *becomes queen2
+                                       .hanging
+queen3_t *Captures queen2 *becomes queen4
+`.trim()],
+
+                ['cm_desperate_b_and_r.gof', `
+rook_t *Checks king_o *becomes rook2
+bishop_t *Blocks Check *becomes bishop2
+                                    .hanging
+rook2 *Captures bishop2 *becomes rook3
+      .Checks2 king
+rook4_t *Blocks Check2 *becomes rook5
+                                    .hanging
+rook3 *Captures rook5 *becomes rook6                                
+      .Checks3 king
+`.trim()],
+
+
+
+        ]
+
+        //single = [more70[more70.length - 1]]
+
+        let more_posets70: string[][] = [
+                ['bm_knight_check_lure.gof', 'nmate_in1.gof', 'push_pawns.gof'],
+                ['ctr_knight_discovery.gof', 'bm_knight_check_lure.gof', 'nmate_in1.gof', 'ctr_knight_fork.gof'],
+                ['ctq_remove_defender.gof', 'push_pawns.gof'],
+                ['sq_knight_fork_qs.gof', 'ctb_queen_fork.gof', 'push_pawns.gof', 'nmate_in1.gof', 'ctr_knight_fork.gof', 'queen_mate.gof'],
+                ['cm_desperate_b_and_r.gof', 'rook_bishop_corner_mate.gof', 'rook_backrank_block_mate.gof', 'two.gof'],
+        ]
 
         let more: [string, string][] = [
                 ['ctq_rook_fork.gof', `
@@ -72,15 +135,16 @@ rook_t *Captures queen2 *becomes rook2
 rook3_t *Captures rook2 *becomes rook4
         .Checks king
 `.trim()],
-
-
-
-
-
         ]
 
         const recall_posets = [
-                ['bmate_qs_v_rook.gof', 'mate_qs_corner_with_rook.gof', 'ctb_queen_fork.gof', 'qzmate_corner_with_rook.gof', 'queen_mate.gof']
+                ['bmate_qs_v_rook.gof', 'mate_qs_corner_with_rook.gof', 'ctb_queen_fork.gof', 'qzmate_corner_with_rook.gof', 'queen_mate.gof'],
+                ['ctb_queen_unpin_discovery.gof', 'ctn_unpin_queen.gof', 'push_pawns.gof', 'ctr_knight_fork.gof'],
+                ['bmate_qs_v_rook.gof', 'qzmate_corner_with_rook.gof', 'queen_mate.gof', 'push_pawns.gof', 'ctr_knight_fork.gof'],
+                ['ctq_knight_fork2.gof', 'bm_knight_check_lure.gof', 'ctq_knight_fork3.gof', 'ctq_knight_fork.gof', 'nmate_in1.gof', 'push_pawns.gof'],
+                ['ctb_rook_exchange.gof', 'two.gof'],
+                ['bmate_bishop_help_double_rook_exchange.gof', 'push_pawns.gof', 'two.gof'],
+                ['rook_backrank_block_mate.gof', 'bm_knight_check_lure.gof', 'rook_bishop_corner_mate.gof', 'nmate_in1.gof', 'push_pawns.gof', 'two.gof'],
         ]
 
         const more_posets = [
@@ -407,10 +471,13 @@ bishop2 *Captures rook *becomes bishop3
         ]
 
 
-        let bestLine = new BestLine([
-                ...fundamentals,
-                ...more,
-        ], [...posets, ...posets3, ...more_posets, ...recall_posets])
+        let bestLine = new BestLine(
+                single ? single : [
+                        ...fundamentals,
+                        ...more,
+                        ...more70,
+                ]
+                , [...posets, ...posets3, ...more_posets, ...recall_posets, ...more_posets70])
 
         let all_done = true
 

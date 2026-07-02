@@ -359,6 +359,23 @@ export function rayBetweenFromTo(from: Square, to: Square) {
 }
 
 
+
+export function allDefendersOf(position: Position, square: Square) {
+    let result = Bitboard.Zero
+    const occupied = position.occupied()
+    const color = position.getColor(square)
+    for (let sq_from of position.bb_color(color).without(square)) {
+        const direction = position.pieceOn(sq_from)!
+        const aa = pieceCheck(sq_from, occupied, strip_color_except_pawns(direction))
+        if (aa.has(square)) {
+            result = result.set(sq_from)
+        }
+    }
+    return result
+}
+
+
+
 export function allAttacksOfColor(position: Position, color: Color) {
     let result = Bitboard.Zero
     const occupied = position.occupied()

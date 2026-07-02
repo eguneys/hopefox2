@@ -39,6 +39,44 @@ class MatchFilters {
     }
 
 
+    static onlyDefendedBy = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const to_symbol = ins.to!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            const bb_to = To[off]
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+
+            for (let sq_from of bb_from2) {
+
+                const bb_defends = Attacks.allDefendersOf(position, sq_from)
+                const only_defend = bb_defends.single()
+
+                if (only_defend !== undefined && bb_to2.has(only_defend)) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(to_symbol, Bitboard.fromSquare(only_defend))
+
+                    history.nodes.appendChild(off, Move.None)
+                }
+            }
+        }
+
+    }
+
+
+
 
     static notAttacked = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
@@ -98,11 +136,13 @@ class MatchFilters {
                 const bb_through3 = aa_to.bitand(bb_through2)
 
                 for (let sq_through of bb_through3) {
-                    const aa_through = SymbolBitboard.movesThrough(position, from_symbol, sq_from, sq_through)
+                    const aa_through = SymbolBitboard.movesThrough(position, from_symbol, sq_from, sq_through).without(sq_through)
 
-                    const aa_through2 = aa_through.bitdiff(bb_through3)
+                    const aa_through2 = aa_through.bitdiff(aa_to)
 
-                    for (let sq_to of aa_through2) {
+                    const aa_through2_to = aa_through2.bitand(bb_to2)
+
+                    for (let sq_to of aa_through2_to) {
 
                         history.table.duplicateRow(off)
 
@@ -605,9 +645,16 @@ class SymbolBitboard {
 
 
 
-    static captures = (position: Position, from_symbol: Symbol, sq_from: Square) => {
+    static captures = (position: Position, from_symbol: Symbol, sq_from: Square): Bitboard => {
         var result = Bitboard.Zero
         switch (from_symbol.name) {
+            case 'turn': {
+                switch (position.roleOn(sq_from)) {
+                    case 'pawn': {
+                        result = Attacks.pawnCapturesColor(sq_from, position.getColor(sq_from))
+                    }
+                }
+            }
             case 'pawn': {
                 result = Attacks.pawnCapturesColor(sq_from, position.getColor(sq_from))
                 break
@@ -669,6 +716,12 @@ class SymbolBitboard {
     static square = (position: Position, symbol: Symbol) => {
         let result!: Bitboard
         switch (symbol.name) {
+            case 'turn': {
+                result = position.bb_turn()
+            } break
+            case 'opponent': {
+                result = position.bb_opponent()
+            } break
             case 'pawn': {
                 result = position.bb_pawn
                 break
@@ -752,6 +805,12 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
         case 'Captures': {
             if (ins.becomes) {
                 MatchActions.captures(ins, history, slice)
+            }
+        } break
+        case 'onlyDefendedBy': {
+            if (ins.becomes) {
+            } else {
+                MatchFilters.onlyDefendedBy(ins, history, slice)
             }
         } break
         case 'notAttacked': {

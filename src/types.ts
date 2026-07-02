@@ -140,7 +140,16 @@ export class Bitboard {
 
     constructor(public lo: number, public hi: number) { }
 
-    single() {
+
+    single(): Square | undefined {
+        return this.moreThanOne() ? undefined : this.last()
+    }
+
+    moreThanOne() {
+        return (this.hi !== 0 && this.lo !== 0) || (this.lo & (this.lo - 1)) !== 0 || (this.hi & (this.hi - 1)) !== 0;
+    }
+
+    last(): Square | undefined {
         if (this.hi !== 0) return Squares[63 - Math.clz32(this.hi)]
         if (this.lo !== 0) return Squares[31 - Math.clz32(this.lo)]
     }
