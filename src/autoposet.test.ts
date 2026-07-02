@@ -123,9 +123,11 @@ ${puzzles100[i].index} https://lichess.org/training/${puzzles100[i].id}
     if (all_done)
         console.log('All done!')
 
-    console.log(`Total Solved: ${nb_solved.length}`)
-    console.log(`Total Scripts: ${fundamentals.length}`)
-    console.log(`Total Posets: ${posets.length}`)
+    let stats = ''
+    stats += `Solved: ${nb_solved.length}/${puzzles100.length} `
+    stats += `Scripts: ${fundamentals.length} `
+    stats += `Posets: ${posets.length}`
+    console.log(stats)
 
 
 })
