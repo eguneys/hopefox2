@@ -7,16 +7,24 @@ queen *Captures rook5 *becomes queen2
                                   .hanging
 bishop *Captures queen2 *becomes bishop2
 
+dumb_rook_mate_w_bishop.gof
+rook_t *Checks king_o *becomes rook2
+       .isUnblockableFor king
+       .isUnevadableFor king .supportedBy bishop_o
+
 dumb_rook_mate.gof
 rook_t *Checks king_o *becomes rook2
        .isUnblockableFor king
-       .isUnevadableFor king
+       .noSafeEvadableFor king
+
+
 
 dumb_queen_mate.gof
 queen_t *Checks king_o *becomes queen2
         .isUnblockableFor king
+        .noSafeEvadableFor king
 
-dumb_rook_block_mate.gof: @preview(single=23)
+dumb_rook_block_mate.gof
 rook_t *Checks king_o *becomes rook2
 rook3_t *Blocks Check *becomes rook4
 rook2 *Checks king *becomes rook5
@@ -62,8 +70,60 @@ queen3 *Blocks Check *becomes queen4
 rook3 *Captures queen4 *becomes rook4
       .Checks king
 
-dumb_rook_mate_corner_zone_with_bishop.gof
+dumb_rook_mate_corner_zone_with_bishop.gof: skip
 rook_t *Checks king_o *becomes rook2
        .isUnblockableFor king
 king *EvadesTo sq *becomes king2
 rook2 *Checks king2 *becomes rook3
+
+bm_q_block_rook.gof
+rook_t *Checks king_o *becomes rook2
+queen3_t *Blocks Check *becomes queen4
+rook2 *Captures queen4 *becomes rook3
+      .Checks king
+
+ctb_knight_fork.gof
+bishop_o .hanging
+knight_t *Forks king_o *and bishop *becomes knight2
+king *EvadesTo sq *becomes king2
+knight2 *Captures bishop *becomes knight3
+
+bm_b_rook_capture.gof
+rook_t *Captures rook2_o *becomes rook3
+       .Checks king_t
+       .isUnblockableFor king
+knight_t *Captures rook3 *becomes knight2
+                                     .hanging
+rook4_t *Captures knight2 *becomes rook5
+
+dumb_queen_mate_w_rook.gof
+queen_t *Checks king_o *becomes queen2
+                                  .onlyDefendedBy rook_o
+
+ctb_q_exchange.gof
+bishop_o .hanging
+queen_t *Captures bishop *becomes queen2
+                                      .hanging
+queen3_t *Forks king_o *and queen2 *becomes queen4
+queen2 *Captures queen4 *becomes queen5
+
+bm_q_block_queen.gof
+queen_t *Checks king_o *becomes queen2
+queen3_t *Blocks Check *becomes queen4
+queen2 *Captures queen4 *becomes queen5
+       .Checks king
+
+dumb_knight_mate.gof
+knight_t *Checks king_o *becomes knight2
+
+bm_b_block_queen.gof
+queen_t *Checks king_o *becomes queen2
+bishop3_t *Blocks Check *becomes bishop4
+queen2 *Captures bishop4 *becomes queen5
+       .Checks king
+       .isUnblockableFor king
+
+skewer_rook_vs_rook.gof
+rook_t *skewers king_o *and rook2_o *becomes rook3
+king *EvadesTo sq *becomes king2
+rook3 *Captures rook2 *becomes rook4

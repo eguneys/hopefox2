@@ -434,3 +434,30 @@ export function pawnCapturesColor(square: Square, color: Color) {
     return pieceCheck(square, Bitboard.Zero, `${color}-pawn`)
 }
 
+
+
+
+export function supportsFor(position: Position, sq_from: Square, sq_through: Square, piece: PieceDirections) {
+    var result = Bitboard.Zero
+    switch (piece) {
+        case 'pawn': {
+            result = pawnCapturesColor(sq_from, `${position.getColor(sq_from)}`)
+            break
+        }
+        case 'knight': {
+            break
+        }
+        case 'king': {
+            result = kingMovesAll(sq_from)
+            break
+        }
+        case 'bishop':
+        case 'rook':
+        case 'queen': {
+            result = pieceRayHit(sq_from, position.occupied().without(sq_through), piece)
+            break
+        }
+    }
+    return result
+}
+

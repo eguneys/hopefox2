@@ -79,7 +79,6 @@ it('basic usage only', () => {
         posets.push(poset)
     }
 
-
     let bestLine = new BestLine(fundamentals, posets)
 
     let all_done = true

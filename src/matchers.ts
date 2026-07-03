@@ -1,6 +1,6 @@
 import { Instruction, Symbol } from "./parser.js";
 import { History, Slice } from './history.js'
-import { Bitboard, Debug, Move, Position, Square } from "./types.js";
+import { Bitboard, Debug, Move, opposite, Position, Square } from "./types.js";
 import * as log from './logs.js'
 import * as Attacks from './attacks.js'
 
@@ -71,9 +71,7 @@ class MatchFilters {
 
     }
 
-
-
-    static isUnevadeableFor = (ins: Instruction, history: History, slice: Slice) => {
+    static noSafeEvadeableFor = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const From = history.table.getColumn(from_symbol)
         const to_symbol = ins.to!.symbol!
@@ -91,13 +89,86 @@ class MatchFilters {
 
             for (let sq_from of bb_from2) {
 
-                for (let sq_for of bb_to2) {
-                    const attack = SymbolBitboard.movesThrough(position, from_symbol, sq_from, sq_for)
+                const bb_support2 = position.bb_color(position.getColor(sq_from))
 
+                let aa_support = Bitboard.Zero
+
+                if (bb_support2) {
+                    for (let sq_support of bb_support2) {
+
+                        for (let sq_for of bb_to2) {
+                            let attack = Attacks.supportsFor(position, sq_support, sq_for, position.roleOn(sq_support)!)
+                            aa_support = aa_support.bitor(attack)
+                        }
+
+                    }
+                }
+
+
+                for (let sq_for of bb_to2) {
                     const evades = SymbolBitboard.movesTo(position, to_symbol, sq_for)
                     const evades2 = evades.bitdiff(position.bb_color(position.getColor(sq_for)))
 
-                    if (evades2.bitdiff(attack).isEmpty()) {
+                    if (evades2.bitdiff(aa_support).isEmpty()) {
+                        history.table.duplicateRow(off)
+                        history.nodes.appendChild(off, Move.None)
+                    }
+                }
+            }
+        }
+
+    }
+
+
+
+
+
+
+    static isUnevadeableFor = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const to_symbol = ins.to!.symbol!
+        const To = history.table.getColumn(to_symbol)
+        const support_symbol = ins.and?.symbol
+        const Support = support_symbol ? history.table.getColumn(support_symbol) : undefined
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            const bb_to = To[off]
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+            const bb_support = Support?.[off]
+            const bb_support2 = support_symbol ? bb_support!.bitand(SymbolBitboard.square(position, support_symbol)) : undefined
+
+            let aa_support = Bitboard.Zero
+
+            if (bb_support2) {
+                for (let sq_support of bb_support2) {
+
+                    for (let sq_for of bb_to2) {
+                        let attack = SymbolBitboard.supportsFor(position, support_symbol!, sq_support, sq_for)
+                        aa_support = aa_support.bitor(attack)
+                    }
+
+                }
+            }
+
+
+            for (let sq_from of bb_from2) {
+
+                for (let sq_for of bb_to2) {
+                    let attack = SymbolBitboard.movesThrough(position, from_symbol, sq_from, sq_for)
+                    const evades = SymbolBitboard.movesTo(position, to_symbol, sq_for)
+                    const evades2 = evades.bitdiff(position.bb_color(position.getColor(sq_for)))
+
+                    let attack2 = attack.bitor(aa_support)
+
+                    if (evades2.bitdiff(attack2).isEmpty()) {
                         history.table.duplicateRow(off)
                         history.nodes.appendChild(off, Move.None)
                     }
@@ -557,6 +628,63 @@ class MatchActions {
     }
 
 
+    static eyesThrough = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const through_symbol = ins.to!.symbol!
+        const to_symbol = ins.and!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+        const Through = history.table.getColumn(through_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_to = To[off]
+            const bb_through = Through[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+            const bb_through2 = bb_through.bitand(SymbolBitboard.square(position, through_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+
+                for (let sq_from2 of aa_to) {
+                    const aa_to2 = SymbolBitboard.movesTo(position, from_symbol, sq_from2)
+
+                    const bb_through3 = aa_to2.bitand(bb_through2)
+
+                    for (let sq_through of bb_through3) {
+                        const aa_through = SymbolBitboard.movesThrough(position, from_symbol, sq_from2, sq_through).without(sq_through)
+
+                        const aa_through2 = aa_through.bitdiff(aa_to)
+
+                        const aa_through2_to = aa_through2.bitand(bb_to2)
+
+                        for (let sq_to of aa_through2_to) {
+
+                            history.table.duplicateRow(off)
+
+                            history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                            history.table.setLastRow(to_symbol, Bitboard.fromSquare(sq_to))
+                            history.table.setLastRow(through_symbol, Bitboard.fromSquare(sq_through))
+                            history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_from2))
+
+                            let move = Move.normal(sq_from, sq_from2)
+                            history.nodes.appendChild(off, move)
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+
 
     static unpins = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
@@ -777,6 +905,32 @@ class SymbolBitboard {
 
 
 
+    static supportsFor = (position: Position, from_symbol: Symbol, sq_from: Square, sq_through: Square) => {
+        var result = Bitboard.Zero
+        switch (from_symbol.name) {
+            case 'pawn': {
+                result = Attacks.pawnCapturesColor(sq_from, `${position.getColor(sq_from)}`)
+                break
+            }
+            case 'knight': {
+                break
+            }
+            case 'king': {
+                break
+            }
+            case 'bishop':
+            case 'rook':
+            case 'queen': {
+                result = Attacks.pieceRayHit(sq_from, position.occupied().without(sq_through), from_symbol.name)
+                break
+            }
+        }
+        return result
+    }
+
+
+
+
     static movesThrough = (position: Position, from_symbol: Symbol, sq_from: Square, sq_through: Square) => {
         var result = Bitboard.Zero
         switch (from_symbol.name) {
@@ -993,6 +1147,12 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
                 MatchFilters.isUnevadeableFor(ins, history, slice)
             }
         } break
+        case 'noSafeEvadableFor': {
+            if (ins.becomes) {
+            } else {
+                MatchFilters.noSafeEvadeableFor(ins, history, slice)
+            }
+        } break
         case 'isUnblockableFor': {
             if (ins.becomes) {
             } else {
@@ -1020,6 +1180,13 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
         case 'eyesThrough': {
             if (ins.becomes) {
                 //MatchActions.evadesTo(ins, history, slice)
+            } else {
+                MatchFilters.eyesThrough(ins, history, slice)
+            }
+        } break
+        case 'skewers': {
+            if (ins.becomes) {
+                MatchActions.eyesThrough(ins, history, slice)
             } else {
                 MatchFilters.eyesThrough(ins, history, slice)
             }

@@ -6,7 +6,7 @@ export enum TokenType {
     Eof = 'Eof'
 };
 
-const Binders = ['and', 'to', 'through', 'becomes']
+const Binders = ['and', 'to', 'through', 'becomes', 'supportedBy']
 type Binders = typeof Binders[number]
 
 export type Symbol = {
