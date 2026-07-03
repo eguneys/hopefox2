@@ -6,13 +6,16 @@ import { AutoPoset } from './autoposet.js'
 import { DebugMove } from './debug.js'
 
 //@ts-ignore
-import '../data/first100.oof?raw'
+import '../data/more100.oof?raw'
+import '../data/more200.oof?raw'
 import { ScriptFilter, ScriptRunner } from './runner.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
 let puzzles100 = puzzles.slice(0, 100).reverse()
+let puzzles200 = puzzles.slice(100, 200).reverse()
 
-let fundamentals = read_oof(fs.readFileSync('data/first100.oof').toString())
+let fundamentals = read_oof(fs.readFileSync('data/more100.oof').toString())
+let more200 = read_oof(fs.readFileSync('data/more200.oof').toString())
 
 function read_oof(oof: string): [string, string][] {
     let result: [string, string][] = []
@@ -59,15 +62,15 @@ ${csv.index} https://lichess.org/training/${csv.id}
 
 it('basic usage only', { timeout: 1000000 }, () => {
 
-    if (fundamentals.length === 0) {
+    if (fundamentals.length === 0 || more200.length === 0) {
         return
     }
 
-    let autoposet = new AutoPoset(fundamentals)
+    let autoposet = new AutoPoset([...fundamentals, ...more200])
 
     let poset_puzzles: CsvPuzzle[] = []
     let posets: string[][] = []
-    for (let puzzle of puzzles100) {
+    for (let puzzle of puzzles200) {
         let poset = autoposet.getPoset(puzzle)
 
         if (poset.length <= 1) {
@@ -101,13 +104,13 @@ it('basic usage only', { timeout: 1000000 }, () => {
         }
     }
 
-    let bestLine = new BestLine(fundamentals, posets)
+    let bestLine = new BestLine([...fundamentals, ...more200], posets)
 
     let all_done = true
 
     let nb_solved = []
 
-    for (let i = 0; i < puzzles100.length; i++) {
+    for (let i = 0; i < puzzles200.length; i++) {
 
         const solutionSans = DebugMove.ucisAsSans(puzzles100[i].position, puzzles100[i].solution)
         const solutionMoves = DebugMove.ucisAsMoves(puzzles100[i].position, puzzles100[i].solution)
