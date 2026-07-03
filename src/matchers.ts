@@ -120,6 +120,40 @@ class MatchFilters {
     }
 
 
+    static noSafeCapturable = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const From = history.table.getColumn(from_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            const white_captures = Attacks.allAttacksOfColorWithoutKing(position, 'white')
+            const black_captures = Attacks.allAttacksOfColorWithoutKing(position, 'black')
+
+            for (let sq_from of bb_from2) {
+                const bb_captures = position.getColor(sq_from) === 'white' ? black_captures : white_captures
+
+                if (!bb_captures.has(sq_from)) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+
+                    history.nodes.appendChild(off, Move.None)
+                }
+            }
+        }
+
+    }
+
+
+
+
 
 
 
@@ -1180,6 +1214,9 @@ class SymbolBitboard {
             }
         }
 
+        if (symbol.props.includes('x')) {
+            result = Bitboard.Full
+        }
         if (symbol.props.includes('t')) {
             result = result.bitand(position.bb_turn())
         } else if (symbol.props.includes('o')) {
@@ -1258,6 +1295,12 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
             if (ins.becomes) {
             } else {
                 MatchFilters.noSafeEvadeableFor(ins, history, slice)
+            }
+        } break
+        case 'noSafeCapturable': {
+            if (ins.becomes) {
+            } else {
+                MatchFilters.noSafeCapturable(ins, history, slice)
             }
         } break
         case 'isUnblockableFor': {

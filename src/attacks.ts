@@ -413,6 +413,10 @@ export function allBlocksOfColorWithout(position: Position, color: Color, square
 
 
 
+export function allAttacksOfColorWithoutKing(position: Position, color: Color) {
+    return allAttacksOfColorWithout(position, color, position.bb_color(color).bitand(position.bb_king).single()!)
+}
+
 export function allAttacksOfColorWithout(position: Position, color: Color, square: Square) {
     let result = Bitboard.Zero
     const occupied = position.occupied()

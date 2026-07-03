@@ -14,7 +14,7 @@ import { Debug, Fen, Files, Position, Ranks } from './types.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
 let puzzles100 = puzzles.slice(0, 100).reverse()
-let puzzles200 = puzzles.slice(100, 125).reverse()
+let puzzles200 = puzzles.slice(100, 130).reverse()
 
 let fundamentals = read_oof(fs.readFileSync('data/more100.oof').toString())
 let more200 = read_oof(fs.readFileSync('data/more200.oof').toString())
@@ -181,6 +181,4 @@ ${puzzle_set[i].index} https://lichess.org/training/${puzzle_set[i].id}
     stats += `Scripts: ${fundamentals.length}+${more200.length} `
     stats += `Posets: ${posets.length}`
     console.log(stats)
-
-
 })
