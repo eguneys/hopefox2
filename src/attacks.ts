@@ -186,6 +186,13 @@ export function knightMovesPlus(square: Square, direction: KnightDirectionsPlus)
         .reduce((acc, _) => acc.bitor(knightMoves(square, _)), Bitboard.Zero)
 }
 
+export function knightMovesAll(square: Square) {
+    return knightMovesPlus(square, 'up2')
+        .bitor(knightMovesPlus(square, 'down2'))
+        .bitor(knightMovesPlus(square, 'left2'))
+        .bitor(knightMovesPlus(square, 'right2'))
+}
+
 
 export function disectDirectionPlus(direction: DirectionPlus): Directions[] {
     switch (direction) {
@@ -445,6 +452,7 @@ export function supportsFor(position: Position, sq_from: Square, sq_through: Squ
             break
         }
         case 'knight': {
+            result = knightMovesAll(sq_from)
             break
         }
         case 'king': {

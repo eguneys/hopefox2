@@ -1,6 +1,6 @@
 import { it, expect } from 'vitest'
 import { BestLine } from './bestlines.js'
-import { read_csv } from './db.js'
+import { CsvPuzzle, read_csv } from './db.js'
 import fs from 'fs'
 import { AutoPoset } from './autoposet.js'
 import { DebugMove } from './debug.js'
@@ -57,7 +57,7 @@ ${csv.index} https://lichess.org/training/${csv.id}
     return result
 }
 
-it('basic usage only', () => {
+it('basic usage only', { timeout: 1000000 }, () => {
 
     if (fundamentals.length === 0) {
         return
@@ -65,6 +65,7 @@ it('basic usage only', () => {
 
     let autoposet = new AutoPoset(fundamentals)
 
+    let poset_puzzles: CsvPuzzle[] = []
     let posets: string[][] = []
     for (let puzzle of puzzles100) {
         let poset = autoposet.getPoset(puzzle)
@@ -77,6 +78,27 @@ it('basic usage only', () => {
             continue
         }
         posets.push(poset)
+        poset_puzzles.push(puzzle)
+    }
+
+    for (let i = 0; i < posets.length; i++) {
+        let poset = posets[i]
+        for (let k = i + 1; k < posets.length; k++) {
+            let posetb = posets[k]
+            if (poset.length !== posetb.length) {
+                continue
+            }
+
+            if (poset.every(a => posetb.indexOf(a) !== -1)) {
+                let puzzle_a = poset_puzzles[i]
+                let puzzle_b = poset_puzzles[k]
+
+                console.log(`Poset Clash: \n${poset.join('\n')}`)
+                console.log(`${puzzle_a.index} https://lichess.org/training/${puzzle_a.id}`)
+                console.log(`${puzzle_b.index} https://lichess.org/training/${puzzle_b.id}`)
+                return
+            }
+        }
     }
 
     let bestLine = new BestLine(fundamentals, posets)

@@ -70,11 +70,12 @@ queen3 *Blocks Check *becomes queen4
 rook3 *Captures queen4 *becomes rook4
       .Checks king
 
-dumb_rook_mate_corner_zone_with_bishop.gof: skip
+dumb_rook_mate_corner_zone_with_bishop.gof
 rook_t *Checks king_o *becomes rook2
        .isUnblockableFor king
 king *EvadesTo sq *becomes king2
 rook2 *Checks king2 *becomes rook3
+      .isUnevadableFor king2 .supportedBy bishop_o
 
 bm_q_block_rook.gof
 rook_t *Checks king_o *becomes rook2
@@ -127,3 +128,182 @@ skewer_rook_vs_rook.gof
 rook_t *skewers king_o *and rook2_o *becomes rook3
 king *EvadesTo sq *becomes king2
 rook3 *Captures rook2 *becomes rook4
+
+ctn_double_hanging_pin_threat.gof
+knight_t *Captures knight2_o *becomes knight3
+queen_t *Captures knight3 *becomes queen2
+rook_t *Captures queen2 *becomes rook2
+
+ctr_bishop_fork_pawn_block.gof
+rook_o .hanging
+bishop_t *Forks king_o *and rook *becomes bishop2
+         .Checks king
+pawn_t *PushBlocks Check *becomes pawn2
+bishop2 *Captures rook *becomes bishop3
+
+ctb_double_hanging.gof
+rook_t *Captures rook2_o *becomes rook2
+bishop *Captures rook2 *becomes bishop2
+                                 .hanging
+rook3_t *Captures bishop2 *becomes rook4
+
+ctb_double_hanging_vs_queen.gof
+queen_t *Captures bishop_o *becomes queen2
+queen3_t *Captures queen2 *becomes queen4
+                                     .hanging
+rook_t *Captures queen4 *becomes rook2
+
+ctq_knight_fork_k_capture.gof
+knight_t *Forks king_o *and queen_o *becomes knight2
+king *Captures pawn_o *becomes king2
+knight2 *Captures queen *becomes knight3
+
+ctb_outright_hanging.gof
+bishop_o .hanging
+knight_t *Captures bishop *becomes knight2
+
+passed_pawn_push.gof
+pawn_t *Pushes sq *becomes pawn2
+knight_t *MovesTo sq *becomes knight2
+pawn2 *Pushes sq2 *becomes pawn3
+
+ctn_rook_fork.gof
+rook_t *Forks knight_o *and king_o *becomes rook2
+king *EvadesTo sq *becomes king2
+rook2 *Captures knight *becomes rook3
+
+ctr_double_hanging_after_queen_ex.gof
+queen_t *Captures queen2_o *becomes queen3
+rook_t *Captures queen3 *becomes rook2
+                                    .hanging
+rook3_t *Captures rook2 *becomes rook4
+
+ctb_queen_fork.gof
+bishop_o .hanging
+queen_t *Forks king_o *and bishop *becomes queen2
+king *EvadesTo sq *becomes king2
+queen2 *Captures bishop *becomes queen3
+
+ctn_hang_via_unpin.gof
+bishop_o .eyesThrough queen_t .through knight_t
+knight *Captures knight2_o *becomes knight3
+bishop *Captures queen *becomes bishop2
+knight3 *Captures queen2_o *becomes knight4
+
+ctn_hang_via_unpin_inbetween_check.gof
+bishop .eyesThrough queen_t .through knight_t
+knight *Captures knight2_o *becomes knight3
+bishop2_t *Captures knight3 *becomes bishop3
+queen *Captures bishop *becomes queen2
+
+bm_double_desperate_block.gof
+queen_t *Checks king_o *becomes queen2
+bishop_t *Blocks Check *becomes bishop2
+                                   .hanging
+queen2 *Captures bishop2 *becomes queen3
+       .Checks2 king
+rook_t *Blocks Check2 *becomes rook2
+queen3 *Captures rook2 *becomes queen4
+
+ctr_bishop_fork.gof
+rook_o .hanging
+bishop_t *Forks king_o *and rook *becomes bishop2
+         .Checks king
+king *EvadesTo sq *becomes king2
+bishop2 *Captures rook *becomes bishop3
+
+bm_qs_qr_battery.gof
+queen_t *Checks king_o *becomes queen2
+rook_t *Captures queen2 *becomes rook2
+                                    .hanging
+rook3_t *Captures rook2 *becomes rook4
+        .Checks king
+
+ctb_rook_fork.gof
+bishop_o .hanging
+rook_t *Forks king_o *and bishop *becomes rook2
+       .Checks king
+king *EvadesTo sq *becomes king2
+rook2 *Captures bishop *becomes rook3
+
+bm_qs_qr_battery_f7q_check.gof
+queen_t *Captures pawn_o *becomes queen2
+        .Checks king_t
+king *EvadesTo sq *becomes king2
+queen2 *Checks king2 *becomes queen3
+rook_t *Captures queen3 *becomes rook2
+                                   .hanging
+rook3_t *Captures rook2 *becomes rook4
+        .Checks king2
+
+m_r_and_pawn.gof
+pawn_t *Pushes sq *becomes pawn2
+       .Checks king_t
+king *EvadesTo sq *becomes king2
+rook_t *Checks king2 *becomes rook2
+       .isUnblockableFor king2
+       .noSafeEvadableFor king2
+
+ctr_hanging_defended_ex.gof
+rook_o .hanging
+knight_t *Captures rook *becomes knight2
+bishop_t *Captures rook2_o *becomes bishop2
+pawn_t *Captures bishop2 *becomes pawn2
+
+ctq_rook_fork.gof
+rook_t *Forks king_o *and queen_o *becomes rook2
+       .Checks king
+bishop_t *Blocks Check *becomes bishop2
+rook2 *Captures queen *becomes rook3
+
+bm_rc_double_desperate_block.gof
+rook_t *Checks king_o *becomes rook2
+bishop_t *Blocks Check *becomes bishop2
+                                   .hanging
+rook2 *Captures bishop2 *becomes rook3
+      .Checks2 king
+rook4_t *Blocks Check2 *becomes rook5
+rook3 *Captures rook5 *becomes rook6
+
+unavoidable_qs_via_k_q_checkmate.gof
+knight_t *Forks king_o *and rook_o *becomes knight2
+queen_t *Captures knight2 *becomes queen2
+                                      .hanging
+queen3_t *Captures queen2 *becomes queen4
+
+ctq_remove_defender_w_bishop_check.gof
+queen_o .onlyDefendedBy knight_o
+bishop_t *Captures knight *becomes bishop2
+         .Checks king_t
+pawn_t *Captures bishop2 *becomes pawn2
+queen2_t *Captures queen *becomes queen3
+
+ctr_knight_discovery.gof
+rook_o .hanging
+rook2_t .eyesThrough rook .through knight_t
+knight *Checks king_o *becomes knight2
+                                    .hanging
+queen_t *Captures knight2 *becomes queen2
+rook2 *Captures rook *becomes rook3
+
+ctr_skewer_rook.gof
+rook_o .hanging
+rook2_t *skewers king_o *and rook *becomes rook3
+king *EvadesTo sq *becomes king2
+rook3 *Captures rook *becomes rook4
+
+bm_lure_knight_check.gof
+knight_t *Checks king_o *becomes knight2
+king *EvadesTo sq *becomes king2
+rook_t *Checks king2 *becomes rook2
+       .isUnevadableFor king2
+       .isUnblockableFor king2
+
+ctr_immediate_hanging_to_queen.gof
+rook_o .hanging
+queen_t *Captures rook *becomes queen2
+
+ctq_bishop_pin.gof
+bishop_t *Pins queen_o *to king_o *becomes bishop2
+bishop3_t *Unpins king *and queen *becomes bishop4
+bishop2 *Captures queen *becomes bishop5

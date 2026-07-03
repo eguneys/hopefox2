@@ -158,7 +158,6 @@ class MatchFilters {
                 }
             }
 
-
             for (let sq_from of bb_from2) {
 
                 for (let sq_for of bb_to2) {
@@ -650,6 +649,7 @@ class MatchActions {
             const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
             const bb_through2 = bb_through.bitand(SymbolBitboard.square(position, through_symbol))
 
+
             for (let sq_from of bb_from2) {
                 const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
 
@@ -661,7 +661,7 @@ class MatchActions {
                     for (let sq_through of bb_through3) {
                         const aa_through = SymbolBitboard.movesThrough(position, from_symbol, sq_from2, sq_through).without(sq_through)
 
-                        const aa_through2 = aa_through.bitdiff(aa_to)
+                        const aa_through2 = aa_through.bitdiff(aa_to2)
 
                         const aa_through2_to = aa_through2.bitand(bb_to2)
 
