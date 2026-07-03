@@ -307,3 +307,67 @@ ctq_bishop_pin.gof
 bishop_t *Pins queen_o *to king_o *becomes bishop2
 bishop3_t *Unpins king *and queen *becomes bishop4
 bishop2 *Captures queen *becomes bishop5
+
+ctb_double_hanging_rook_ex.gof
+rook_t *Captures bishop_o *becomes rook2
+rook3_t *Captures rook2 *becomes rook4
+                                    .hanging
+bishop2_t *Captures rook4 *becomes bishop3
+
+pp_rook_check.gof
+pawn_t *Pushes sq *becomes pawn2
+rook_t *Checks pawn2 *becomes rook2
+rook3_t *Checks king_o *becomes rook4
+
+ctr_bishop_discovery_double_hanging.gof
+rook_t .eyesThrough rook2_o *through bishop_t
+bishop *Checks king_o *becomes bishop2
+pawn_t *PushBlocks sq *becomes pawn2
+rook *Captures rook2 *becomes rook3
+rook4_t *Captures rook3 *becomes rook5
+                                     .hanging
+rook6_t *Captures rook5 *becomes rook6
+
+lure_king_to_bishop_pin_w_ex_sac.gof
+rook_t *Captures pawn_o *becomes rook2
+       .Checks king_t
+knight_t *Captures rook2 *becomes knight2
+rook3_t *Captures knight2 *becomes rook4
+
+ctn_ih_to_king.gof
+knight_o .hanging
+king_t *Captures knight *becomes king2
+bishop_t *Captures bishop2_o *becomes bishop3
+                                         .hanging
+queen_t *Captures bishop3 *becomes queen2
+
+qzm_w_rook.gof
+queen_t *Checks king_o *becomes queen2
+king *EvadesTo sq *becomes king2
+queen2 *Checks king2 *becomes queen3
+       .isUnevadableFor king2 .supportedBy rook_o
+
+bmate_p_block_with_rook.gof
+bishop_t *Checks king_o *becomes bishop2
+pawn_t *PushBlocks sq *becomes pawn2
+bishop2 *Checks king *becomes bishop3
+        .noSafeEvadableFor king
+
+ppp_knight_sac.gof
+knight_t .hanging
+pawn_t *Pushes sq_p *becomes pawn2
+bishop_t *Captures knight *becomes bishop2
+pawn2 *PushPromotes sq2 *becomes pawn3
+
+ctn_remove_defender_w_knight.gof
+knight_o .onlyDefendedBy bishop_o
+knight2_t *Captures bishop *becomes knight3
+          .Checks rook_t
+pawn_t *Captures knight3 *becomes pawn2
+queen_t *Captures knight *becomes queen2
+
+ctn_double_hanging.gof
+bishop_t *Captures knight_o *becomes bishop2
+bishop3_t *Captures bishop2 *becomes bishop4
+                                          .hanging
+rook_t *Captures bishop4 *becomes rook2 

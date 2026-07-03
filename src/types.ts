@@ -39,6 +39,10 @@ export type PromotionRole = typeof PromotionRoles[number]
 
 export type Piece = `${Color}-${Role}`
 
+export function promotionRankOf(color: Color) {
+
+}
+
 export function squareToIndex(square: Square) {
     return Squares.indexOf(square)
 }
@@ -61,6 +65,8 @@ export class Bitboard {
             new Bitboard(1 << index, 0)
     }
 
+    static get Rank8(): Bitboard { return new Bitboard(0, 0xff000000) }
+    static get Rank1(): Bitboard { return new Bitboard(0x000000ff, 0) }
 
     static get Full(): Bitboard { return Bitboard.Zero.complement() }
     static get Zero(): Bitboard { return new Bitboard(0, 0) }

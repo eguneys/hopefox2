@@ -78,7 +78,7 @@ export class CheckFinder {
         for (let ray of check_rays) {
             for (let sq_blocker of friends) {
                 const direction = position.pieceOn(sq_blocker)!
-                const aa = Attacks.pieceCheck(sq_blocker, occupied, strip_color_except_pawns(direction))
+                const aa = Attacks.pieceBlock(sq_blocker, occupied, strip_color_except_pawns(direction))
                 const block = aa.bitand(ray)
                 if (!block.isEmpty()) {
                     blocks_check = blocks_check.bitor(block)

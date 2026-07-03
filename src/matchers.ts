@@ -431,6 +431,52 @@ class MatchActions {
     }
 
 
+    static push_promotes = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const to_symbol = ins.to!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_to = To[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+
+            for (let sq_from of bb_from2) {
+                let aa_to = SymbolBitboard.pushes(position, from_symbol, sq_from)
+
+                const promotion_rank = position.getColor(sq_from) === 'white' ? Bitboard.Rank8 : Bitboard.Rank1
+                const bb_to3 = bb_to2.bitand(promotion_rank)
+
+                aa_to = aa_to.bitand(bb_to3)
+
+
+                for (let sq_to of aa_to) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
+
+                    let move = Move.normal(sq_from, sq_to)
+                    history.nodes.appendChild(off, move)
+                }
+            }
+        }
+
+
+    }
+
+
+
     static pushes = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const to_symbol = ins.to!.symbol!
@@ -1097,6 +1143,11 @@ class SymbolBitboard {
 
 export function matchInstruction(ins: Instruction, history: History, slice: Slice) {
     switch (ins.action.symbol!.name) {
+        case 'PushPromotes': {
+            if (ins.becomes) {
+                MatchActions.push_promotes(ins, history, slice)
+            }
+        } break
         case 'Pushes': {
             if (ins.becomes) {
                 MatchActions.pushes(ins, history, slice)
