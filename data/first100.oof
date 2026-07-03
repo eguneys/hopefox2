@@ -16,7 +16,7 @@ dumb_queen_mate.gof
 queen_t *Checks king_o *becomes queen2
         .isUnblockableFor king
 
-dumb_rook_block_mate.gof
+dumb_rook_block_mate.gof: @preview(single=23)
 rook_t *Checks king_o *becomes rook2
 rook3_t *Blocks Check *becomes rook4
 rook2 *Checks king *becomes rook5

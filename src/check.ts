@@ -73,19 +73,18 @@ export class CheckFinder {
 
         this.check_rays = check_rays
 
-        const blocks_check = Bitboard.Zero
+        let blocks_check = Bitboard.Zero
 
         for (let ray of check_rays) {
             for (let sq_blocker of friends) {
                 const direction = position.pieceOn(sq_blocker)!
                 const aa = Attacks.pieceCheck(sq_blocker, occupied, strip_color_except_pawns(direction))
-                const block = aa.bitand(ray).single()
-                if (block !== undefined) {
-                    blocks_check.set(block)
+                const block = aa.bitand(ray)
+                if (!block.isEmpty()) {
+                    blocks_check = blocks_check.bitor(block)
                 }
             }
         }
-
 
         this.blocks_check = blocks_check
 
