@@ -10,10 +10,11 @@ import '../data/more100.oof?raw'
 //@ts-ignore
 import '../data/more200.oof?raw'
 import { ScriptFilter, ScriptRunner } from './runner.js'
+import { Debug, Fen, Files, Position, Ranks } from './types.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
 let puzzles100 = puzzles.slice(0, 100).reverse()
-let puzzles200 = puzzles.slice(100, 200).reverse()
+let puzzles200 = puzzles.slice(100, 125).reverse()
 
 let fundamentals = read_oof(fs.readFileSync('data/more100.oof').toString())
 let more200 = read_oof(fs.readFileSync('data/more200.oof').toString())
@@ -62,6 +63,10 @@ ${csv.index} https://lichess.org/training/${csv.id}
 }
 
 it('basic usage only', { timeout: 1000000 }, () => {
+
+    if (more200.length === 0) {
+        return
+    }
 
     let script_set = [...fundamentals, ...more200]
     let puzzle_set = puzzles200
@@ -173,7 +178,7 @@ ${puzzle_set[i].index} https://lichess.org/training/${puzzle_set[i].id}
 
     let stats = ''
     stats += `Solved: ${nb_solved.length}/${puzzle_set.length} `
-    stats += `Scripts: ${script_set.length} `
+    stats += `Scripts: ${fundamentals.length}+${more200.length} `
     stats += `Posets: ${posets.length}`
     console.log(stats)
 

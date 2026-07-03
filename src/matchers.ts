@@ -898,6 +898,55 @@ class MatchActions {
 
 
 
+    static defends = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const Defends_symbol = fix_symbol_checks_to_check(ins.action.symbol!)
+        const defended_symbol = ins.to!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const Defended = history.table.getColumn(defended_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_defended = Defended[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_defended2 = bb_defended.bitand(SymbolBitboard.square(position, defended_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+
+                for (let sq_to of aa_to) {
+
+                    const aa_defended = SymbolBitboard.movesTo(position, from_symbol, sq_to)
+
+                    const bb_defended3 = bb_defended2.bitand(aa_defended)
+
+                    for (let sq_defended of bb_defended3) {
+
+                        history.table.duplicateRow(off)
+
+                        history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                        history.table.setLastRow(defended_symbol, Bitboard.fromSquare(sq_defended))
+                        history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
+                        history.table.setLastRow(Defends_symbol, Attacks.rayBetweenFromTo(sq_to, sq_defended))
+
+                        let move = Move.normal(sq_from, sq_to)
+                        history.nodes.appendChild(off, move)
+                    }
+                }
+            }
+
+
+        }
+
+    }
+
+
     static checks = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const Check_symbol = fix_symbol_checks_to_check(ins.action.symbol!)
@@ -1173,6 +1222,13 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
                 MatchActions.forks(ins, history, slice)
             } else {
                 MatchFilters.forks(ins, history, slice)
+            }
+        } break
+        case 'Defends': {
+            if (ins.becomes) {
+                MatchActions.defends(ins, history, slice)
+            } else {
+                //MatchFilters.checks(ins, history, slice)
             }
         } break
         case 'Checks': {

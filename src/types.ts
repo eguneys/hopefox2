@@ -462,6 +462,24 @@ export class Position {
 
 export class Debug {
 
+    static FenPiece = (piece: Piece) => {
+        switch (piece) {
+            case 'white-pawn': return 'P'
+            case 'white-bishop': return 'B'
+            case 'white-rook': return 'R'
+            case 'white-knight': return 'N'
+            case 'white-queen': return 'Q'
+            case 'white-king': return 'K'
+            case 'black-pawn': return 'p'
+            case 'black-bishop': return 'b'
+            case 'black-rook': return 'r'
+            case 'black-knight': return 'n'
+            case 'black-queen': return 'q'
+            case 'black-king': return 'k'
+        }
+        throw `bad fen piece ${piece}`
+    }
+
     static SanRole = (role: Role) => {
         switch (role) {
             case 'rook': return 'R'

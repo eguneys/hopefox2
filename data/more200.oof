@@ -1,0 +1,42 @@
+ctr_bishop_sac_queen_fork.gof
+rook_o .hanging
+bishop_t *Captures pawn_o *becomes bishop2
+pawn2_t *Captures bishop2 *becomes pawn3
+queen_t *Captures pawn3 *becomes queen2
+        .Forks king .and rook
+
+ctn_double_hanging_queen_rook_ex.gof
+rook_t *Captures knight_o *becomes rook2
+rook3_t *Captures rook2 *becomes rook4
+                                    .hanging
+queen_t *Captures rook4 *becomes queen2                                    
+
+bm_queen_lure_via_bishop_check.gof
+bishop_t *Checks king_o *becomes bishop2
+king *EvadesTo sq *becomes king2
+rook_o .hanging
+queen_t *Captures rook *becomes queen2
+        .Checks king2
+
+ctr_double_hanging_queen_rook_ex.gof
+rook_t *Captures rook2_o *becomes rook3
+       .Checks king
+rook4_t *Captures rook3 *becomes rook5
+                                    .hanging
+queen_t *Captures rook5 *becomes queen2                                    
+        .Checks king
+
+ctr_hanging_queen_fork.gof
+rook_o .hanging
+queen_t *Forks king_o *and rook *becomes queen2
+king *EvadesTo sq *becomes king2
+queen2 *Captures rook *becomes queen3
+
+ctn_hanging_defend_knight.gof
+knight_o .hanging
+king_t *Captures knight *becomes king2
+pawn_o .hanging
+king3_t *Checks pawn *becomes king4
+                                .notAttacked
+knight2_t *Defends pawn *becomes knight3
+                                     .onlyDefendedBy king2
