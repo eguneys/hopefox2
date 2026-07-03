@@ -343,6 +343,7 @@ queen_t *Captures bishop3 *becomes queen2
 
 qzm_w_rook.gof
 queen_t *Checks king_o *becomes queen2
+                                 .notAttacked
 king *EvadesTo sq *becomes king2
 queen2 *Checks king2 *becomes queen3
        .isUnevadableFor king2 .supportedBy rook_o

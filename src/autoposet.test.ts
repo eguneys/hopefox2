@@ -7,6 +7,7 @@ import { DebugMove } from './debug.js'
 
 //@ts-ignore
 import '../data/more100.oof?raw'
+//@ts-ignore
 import '../data/more200.oof?raw'
 import { ScriptFilter, ScriptRunner } from './runner.js'
 
@@ -33,7 +34,7 @@ function read_oof(oof: string): [string, string][] {
             if (m) {
                 let single = parseInt(m[1])
 
-                let csv = puzzles100.find(_ => _.index === single)!
+                let csv = puzzles100.find(_ => _.index === single) ?? puzzles200.find(_ => _.index === single)!
 
 
                 const solutionSans = DebugMove.ucisAsSans(csv.position, csv.solution)
@@ -62,15 +63,14 @@ ${csv.index} https://lichess.org/training/${csv.id}
 
 it('basic usage only', { timeout: 1000000 }, () => {
 
-    if (fundamentals.length === 0 || more200.length === 0) {
-        return
-    }
+    let script_set = [...fundamentals, ...more200]
+    let puzzle_set = puzzles200
 
-    let autoposet = new AutoPoset([...fundamentals, ...more200])
+    let autoposet = new AutoPoset(script_set)
 
     let poset_puzzles: CsvPuzzle[] = []
     let posets: string[][] = []
-    for (let puzzle of puzzles200) {
+    for (let puzzle of puzzle_set) {
         let poset = autoposet.getPoset(puzzle)
 
         if (poset.length <= 1) {
@@ -104,23 +104,23 @@ it('basic usage only', { timeout: 1000000 }, () => {
         }
     }
 
-    let bestLine = new BestLine([...fundamentals, ...more200], posets)
+    let bestLine = new BestLine(script_set, posets)
 
     let all_done = true
 
     let nb_solved = []
 
-    for (let i = 0; i < puzzles200.length; i++) {
+    for (let i = 0; i < puzzle_set.length; i++) {
 
-        const solutionSans = DebugMove.ucisAsSans(puzzles100[i].position, puzzles100[i].solution)
-        const solutionMoves = DebugMove.ucisAsMoves(puzzles100[i].position, puzzles100[i].solution)
+        const solutionSans = DebugMove.ucisAsSans(puzzle_set[i].position, puzzle_set[i].solution)
+        const solutionMoves = DebugMove.ucisAsMoves(puzzle_set[i].position, puzzle_set[i].solution)
 
         const message = `
-${puzzles100[i].index} https://lichess.org/training/${puzzles100[i].id}
+${puzzle_set[i].index} https://lichess.org/training/${puzzle_set[i].id}
 [${solutionSans.join(' ')}]
 `.trim()
 
-        const res = bestLine.findBestLine(puzzles100[i].position)
+        const res = bestLine.findBestLine(puzzle_set[i].position)
 
         let error_matches = ''
         let errors = ''
@@ -132,7 +132,7 @@ ${puzzles100[i].index} https://lichess.org/training/${puzzles100[i].id}
         outer: for (let k = 0; k < res.bestTreeScripts.length; k++) {
             const bestLineScripts = res.bestTreeScripts[k][1].getLinesWithOpponentMoves(solutionMoves)
             if (bestLineScripts) {
-                const bestLine = DebugMove.movesAsSans(puzzles100[i].position, bestLineScripts[0])
+                const bestLine = DebugMove.movesAsSans(puzzle_set[i].position, bestLineScripts[0])
                 let is_mismatch = false
                 for (let j = 0; j < solutionSans.length; j++) {
                     if (solutionSans[j] !== bestLine[j]) {
@@ -172,8 +172,8 @@ ${puzzles100[i].index} https://lichess.org/training/${puzzles100[i].id}
         console.log('All done!')
 
     let stats = ''
-    stats += `Solved: ${nb_solved.length}/${puzzles100.length} `
-    stats += `Scripts: ${fundamentals.length} `
+    stats += `Solved: ${nb_solved.length}/${puzzle_set.length} `
+    stats += `Scripts: ${script_set.length} `
     stats += `Posets: ${posets.length}`
     console.log(stats)
 

@@ -67,6 +67,6 @@ queen_t *Checks king_o *becomes queen2
 
     expect(res[1].action.symbol!.name).toEqual('notAttacked')
     expect(res[1].to).toBeUndefined()
-    expect(res[1].from.symbol.name).toEqual('queen')
+    expect(res[1].from.symbol!.name).toEqual('queen')
 
 })
