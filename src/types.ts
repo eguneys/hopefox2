@@ -164,6 +164,10 @@ export class Bitboard {
         return this.bitand(Bitboard.fromSquare(sq)).isNotEmpty()
     }
 
+    intersects(other: Bitboard) {
+        return this.bitand(other).isNotEmpty()
+    }
+
     bitand(other: Bitboard) {
         return new Bitboard(this.lo & other.lo, this.hi & other.hi)
     }

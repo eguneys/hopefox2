@@ -3,6 +3,7 @@ import { History, Slice } from './history.js'
 import { Bitboard, Debug, Move, opposite, Position, Square } from "./types.js";
 import * as log from './logs.js'
 import * as Attacks from './attacks.js'
+import * as Pawns from './pawns.js'
 
 class MatchFilters {
 
@@ -1528,6 +1529,9 @@ class SymbolBitboard {
             }
         }
 
+        if (symbol.props.includes('p')) {
+            result = result.bitand(Pawns.passed_pawns(position))
+        }
         if (symbol.props.includes('x')) {
             result = Bitboard.Full
         }

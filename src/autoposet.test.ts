@@ -14,7 +14,7 @@ import { Debug, Fen, Files, Position, Ranks } from './types.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
 let puzzles100 = puzzles.slice(0, 100).reverse()
-let puzzles200 = puzzles.slice(0, 180).reverse()
+let puzzles200 = puzzles.slice(0, 200).reverse()
 
 let fundamentals = read_oof(fs.readFileSync('data/more100.oof').toString().trim())
 let more200 = read_oof(fs.readFileSync('data/more200.oof').toString().trim())
@@ -89,11 +89,6 @@ it('basic usage only', { timeout: 1000000 }, () => {
     let poset_puzzles: CsvPuzzle[] = []
     let posets: string[][] = []
     for (let puzzle of puzzle_set) {
-        if (puzzle.index === 83) {
-            debugger
-        }
-
-
         let poset = autoposet.getPoset(puzzle)
         if (poset.length <= 1) {
             continue

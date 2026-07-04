@@ -100,6 +100,7 @@ rook4_t *Captures knight2 *becomes rook5
 dumb_queen_mate_w_rook.gof
 queen_t *Checks king_o *becomes queen2
                                   .onlyDefendedBy rook_o
+                                  .noSafeEvadableFor king
 
 ctb_q_exchange.gof
 bishop_o .hanging
@@ -343,6 +344,7 @@ queen_t *Checks king_o *becomes queen2
 king *EvadesTo sq *becomes king2
 queen2 *Checks king2 *becomes queen3
        .isUnevadableFor king2 .supportedBy rook_o
+queen3 .noSafeCapturable
 
 bmate_p_block_with_rook.gof
 bishop_t *Checks king_o *becomes bishop2
@@ -368,3 +370,9 @@ bishop_t *Captures knight_o *becomes bishop2
 bishop3_t *Captures bishop2 *becomes bishop4
                                           .hanging
 rook_t *Captures bishop4 *becomes rook2 
+
+pp_bishop_cant_cover_knight_sac.gof
+knight_t .hanging
+pawn_tp *Pushes sq *becomes pawn2
+bishop_t *Captures knight *becomes bishop2
+pawn2 *PushPromotes sq2 *becomes queen
