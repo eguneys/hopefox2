@@ -384,3 +384,28 @@ queen2 *Checks king2 *becomes queen3
                                   .noSafeCapturable
                                   .onSupportedKingZone pawn_o
 
+ctq_bishop_discovery_pxb.gof
+queen2_o .hanging
+queen_t .eyesThrough queen2 .through bishop_t
+bishop *Checks king_o *becomes bishop2
+pawn_t *Captures bishop2 *becomes pawn2
+queen *Captures queen2 *becomes queen3
+
+ctr_skewer_rook_kxp.gof
+rook_o .hanging
+rook2_t *skewers king_o *and rook *becomes rook3
+                                              .notAttacked
+king *Captures pawn_o *becomes king2
+rook3 *Captures rook *becomes rook4
+
+ctb_remove_defender_nxnxq.gof
+bishop_o .onlyDefendedBy knight_o
+knight2_t *Captures knight *becomes knight3
+          .Checks king_t
+queen_t *Captures knight3 *becomes queen2
+queen3_t *Captures bishop *becomes queen4
+
+ctq_bishop_pin_unpinnable_king_evades.gof
+bishop_t *Pins queen_o .to king_o *becomes bishop2
+king *CastlesLongTo sq *becomes king2
+bishop2 *Captures queen *becomes bishop3

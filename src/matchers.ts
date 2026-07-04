@@ -230,7 +230,7 @@ class MatchFilters {
                 for (let sq_support of bb_support2) {
 
                     for (let sq_for of bb_to2) {
-                        let attack = SymbolBitboard.supportsFor(position, support_symbol!, sq_support, sq_for)
+                        let attack = SymbolBitboard.supportsForThrough(position, support_symbol!, sq_support, sq_for)
                         aa_support = aa_support.bitor(attack)
                     }
 
@@ -547,6 +547,47 @@ class MatchActions {
             }
         }
     }
+
+
+    static castles_long_to = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const to_symbol = ins.to!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_to = To[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+
+            for (let sq_from of bb_from2) {
+
+                const aa_to = Attacks.kingCastlesLong(sq_from)
+                const bb_to3 = bb_to2.bitand(aa_to)
+
+                for (let sq_to of bb_to3) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
+
+                    let move = Move.castling(sq_from, sq_to)
+                    history.nodes.appendChild(off, move)
+                }
+            }
+        }
+
+
+    }
+
 
 
     static capture_promotes = (ins: Instruction, history: History, slice: Slice) => {
@@ -1502,6 +1543,11 @@ class SymbolBitboard {
 
 export function matchInstruction(ins: Instruction, history: History, slice: Slice) {
     switch (ins.action.symbol!.name) {
+        case 'CastlesLongTo': {
+            if (ins.becomes) {
+                MatchActions.castles_long_to(ins, history, slice)
+            }
+        } break
         case 'CapturePromotes': {
             if (ins.becomes) {
                 MatchActions.capture_promotes(ins, history, slice)

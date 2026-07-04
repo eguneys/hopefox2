@@ -77,6 +77,14 @@ export function kingMovesAll(square: Square) {
         .reduce((acc, _) => acc.bitor(kingMoves(square, _)), Bitboard.Zero)
 }
 
+export function kingCastlesLong(square: Square) {
+    if (square === 'e8') {
+        return Bitboard.fromSquare('c8')
+    } else if (square === 'e1') {
+        return Bitboard.fromSquare('c1')
+    }
+    return Bitboard.Zero
+}
 
 
 const pawn_masks = generate_pawn_masks()
