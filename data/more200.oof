@@ -347,6 +347,7 @@ rook2 *Captures rook *becomes rook3
 
 exposed_king_rook_bishop_corner_checks.gof
 rook_t *Checks king_o *becomes rook2
+                                 .notAttacked
 king *SingleSafeEvadeTo sq *becomes king2
 rook2 *Checks king2 *becomes rook3
 king2 *SingleSafeEvadeTo sq2 *becomes king3
@@ -358,3 +359,28 @@ queen_t *Captures queen2_o *becomes queen3
 pawn2_t *Captures queen3 *becomes pawn3
 pawn4_t *Pushes sq *becomes pawn5
         .Defends pawn
+
+ctr_bishop_discovery.gof
+rook_o .hanging
+rook2_t .eyesThrough rook .through bishop_t
+bishop *Checks king_o *becomes bishop2
+                                  .isUnblockableFor king
+king *EvadesTo sq *becomes king2
+rook2 *Captures rook *becomes rook3
+
+ctr_queen_fork_after_lures_king_with_rook_check.gof
+rook_o .hanging
+rook2_t *Checks king_o *becomes rook3
+king *SingleSafeEvadeTo sq *becomes king2
+queen_t *Forks king2 *and rook *becomes queen2
+        .Checks king2
+queen3_t *Blocks Check *becomes queen4
+queen2 *Captures rook *becomes queen5
+
+qzm_check_mate.gof
+queen_t *Checks king_o *becomes queen2
+king *SingleSafeEvadeTo sq *becomes king2
+queen2 *Checks king2 *becomes queen3
+                                  .noSafeCapturable
+                                  .onSupportedKingZone pawn_o
+

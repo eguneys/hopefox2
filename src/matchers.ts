@@ -154,6 +154,53 @@ class MatchFilters {
 
 
 
+    static onSupportedKingZone = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const to_symbol = ins.to!.symbol!
+        const To = history.table.getColumn(to_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            const bb_to = To[off]
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+            const white_king = position.bb_king.bitand(position.bb_color('white'))
+            const black_king = position.bb_king.bitand(position.bb_color('black'))
+
+            const white_zone = Attacks.kingMovesAll(white_king.single()!)
+            const black_zone = Attacks.kingMovesAll(black_king.single()!)
+
+            for (let sq_from of bb_from2) {
+
+                for (let sq_support of bb_to2) {
+
+                    const aa_support = SymbolBitboard.supportsFor(position, to_symbol, sq_support)
+
+
+                    const king_zone = position.getColor(sq_from) === 'white' ? black_zone : white_zone
+
+                    if (king_zone.bitand(aa_support).has(sq_from)) {
+                        history.table.duplicateRow(off)
+
+                        history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                        history.table.setLastRow(to_symbol, Bitboard.fromSquare(sq_support))
+
+                        history.nodes.appendChild(off, Move.None)
+                    }
+
+                }
+            }
+        }
+
+    }
+
+
 
 
     static isUnevadeableFor = (ins: Instruction, history: History, slice: Slice) => {
@@ -1208,9 +1255,32 @@ class MatchActions {
 
 class SymbolBitboard {
 
+    static supportsFor = (position: Position, from_symbol: Symbol, sq_from: Square) => {
+        var result = Bitboard.Zero
+        switch (from_symbol.name) {
+            case 'pawn': {
+                result = Attacks.pawnCapturesColor(sq_from, `${position.getColor(sq_from)}`)
+                break
+            }
+            case 'knight': {
+                break
+            }
+            case 'king': {
+                break
+            }
+            case 'bishop':
+            case 'rook':
+            case 'queen': {
+                result = Attacks.pieceRayHit(sq_from, position.occupied(), from_symbol.name)
+                break
+            }
+        }
+        return result
+    }
 
 
-    static supportsFor = (position: Position, from_symbol: Symbol, sq_from: Square, sq_through: Square) => {
+
+    static supportsForThrough = (position: Position, from_symbol: Symbol, sq_from: Square, sq_through: Square) => {
         var result = Bitboard.Zero
         switch (from_symbol.name) {
             case 'pawn': {
@@ -1519,6 +1589,12 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
             if (ins.becomes) {
             } else {
                 MatchFilters.noSafeCapturable(ins, history, slice)
+            }
+        } break
+        case 'onSupportedKingZone': {
+            if (ins.becomes) {
+            } else {
+                MatchFilters.onSupportedKingZone(ins, history, slice)
             }
         } break
         case 'isUnblockableFor': {
