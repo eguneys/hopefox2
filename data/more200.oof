@@ -121,3 +121,124 @@ ctr_bishop_pin_deflect_diagonal.gof
 rook_t *Captures rook2_o *becomes rook3
 bishop_t *Captures rook3 *becomes bishop2
 bishop3_t *Pins rook4_o *to king_o *becomes bishop4
+
+ctn_double_hanging_rook_queen_ex.gof
+rook_t *Captures knight_o *becomes rook2
+queen_t *Captures rook2 *becomes queen2
+rook3_t *Captures queen2 *becomes rook4
+
+bm_rook_mate_double_ex.gof
+rook_o .hanging
+rook2_t *Checks king_o *becomes rook3
+rook *Captures rook3 *becomes rook4
+rook5_t *Captures rook4 *becomes rook5
+        .Checks king
+
+ctr_double_hanging_queen_rook_ex.gof
+rook_t *Captures rook2_o *becomes rook3
+rook4_t *Captures rook3 *becomes rook5
+queen_t *Captures rook5 *becomes queen2
+
+zm_queen_w_knight_2checks.gof
+queen_t *Checks king_o *becomes queen2
+                                   .onlyDefendedBy knight_o
+king *EvadesTo sq *becomes king2
+queen2 *Checks king2 *becomes queen3
+                                  .onlyDefendedBy knight
+
+ctn_bishop_fork_zone_w_rook.gof
+knight_o .hanging
+bishop_t *Forks king_o *and knight *becomes bishop2
+                                               .onlyDefendedBy rook_o
+king *EvadesTo sq *becomes king3
+bishop2 *Captures knight *becomes bishop3
+
+ctq_immediate_hanging_a_kb_ex.gof
+queen_o .hanging
+bishop_t *Captures queen *becomes bishop2
+bishop3_t *Captures knight_o *becomes bishop4
+pawn_t *Captures bishop4 *becomes pawn2
+
+zm_queen_w_rook_2checks.gof
+queen_t *Checks king_o *becomes queen2
+                                   .onlyDefendedBy rook_o
+king *EvadesTo sq *becomes king2
+queen2 *Checks king2 *becomes queen3
+                                  .onlyDefendedBy rook
+
+ctr_bishop_fork.gof
+rook_o .hanging
+bishop_t *Forks rook *and king_o *becomes bishop2
+king *Captures pawn_o *becomes king2
+bishop2 *Captures rook *becomes bishop3
+
+ctq_bishop_pin_after_pxb.gof
+pawn_t *Captures bishop_o *becomes pawn2
+       .Checks king_t
+queen_t *Captures pawn2 *becomes queen2
+bishop2_t *Pins queen2 .to king *becomes bishop3
+                                           .onlyDefendedBy pawn3_o
+queen2 *Captures bishop3 *becomes queen3
+pawn3 *Captures queen3 *becomes pawn4
+
+qzm_w_bishop_drook_block.gof
+queen_t *Checks king_o *becomes queen2
+                                   .noSafeCapturable
+                                   .onlyDefendedBy bishop_o
+
+ctn_queen_fork.gof
+knight_o .hanging
+queen_t *Forks king_o *and knight *becomes queen2
+        .Checks king
+bishop_t *Blocks Check *becomes bishop2
+queen2 *Captures knight *becomes queen3
+
+ctr_pawn_discovery_w_check_bx.gof
+rook_o .hanging
+bishop_t .eyesThrough rook .through pawn_t
+pawn *Pushes sq *becomes pawn2
+     .Checks king
+king_t *Captures pawn2 *becomes king2
+bishop *Captures rook *becomes bishop2
+
+ctn_lure_into_bishop_fork_a_rook_ex.gof
+knight_o .hanging
+rook_t *Captures rook2_o *becomes rook3
+king_t *Captures rook3 *becomes king2
+bishop_t *Forks king2 *and knight *becomes bishop2
+king2 *EvadesTo sq *becomes king3
+bishop2 *Captures knight *becomes bishop3
+
+ppp_rook_check_hanging_force_capture.gof
+rook_o .hanging
+rook2_t *Forks king *and rook *becomes rook3
+                                         .onlyDefendedBy pawn_o
+rook *Captures rook3 *becomes rook4
+pawn *CapturePromotes rook4 *becomes queen
+
+eg_pawn_ctn_push.gof
+knight_o .hanging
+pawn_t *Captures knight *becomes pawn2
+                                    .hanging
+king *EvadesTo sq *becomes king2
+pawn3_t *Pushes sq2 *becomes pawn4
+
+bishop_o .hanging
+bishop2_o .hanging
+rook_t *Checks bishop *becomes rook2
+       .eyesThrough bishop2 .through bishop
+bishop2 *Captures pawn_o *becomes bishop3
+rook2 *Captures bishop *becomes rook3
+
+ctn_nxnxq.gof
+knight_t *Captures knight2_o *becomes knight3
+knight4_t *Captures knight3 *becomes knight5
+                                        .hanging
+queen_t *Captures knight5 *becomes queen2
+
+qs_mate_threat_pawn_push2.gof
+pawn_t *DoublePushes sq *becomes pawn2
+       .Checks king_t
+pawn2 .onlyDefendedBy pawn3_o
+queen_t *Captures pawn2 *becomes queen2
+pawn3 *Captures queen2 *becomes pawn4

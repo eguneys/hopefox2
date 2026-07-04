@@ -465,6 +465,52 @@ class MatchActions {
     }
 
 
+    static capture_promotes = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const to_symbol = ins.to!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_to = To[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+
+            for (let sq_from of bb_from2) {
+                let aa_to = SymbolBitboard.captures(position, from_symbol, sq_from)
+
+                const promotion_rank = position.getColor(sq_from) === 'white' ? Bitboard.Rank8 : Bitboard.Rank1
+                const bb_to3 = bb_to2.bitand(promotion_rank)
+
+                aa_to = aa_to.bitand(bb_to3)
+
+
+                for (let sq_to of aa_to) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
+
+                    let move = Move.promotion(sq_from, sq_to, becomes_symbol.name)
+                    history.nodes.appendChild(off, move)
+                }
+            }
+        }
+
+
+    }
+
+
+
     static push_promotes = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const to_symbol = ins.to!.symbol!
@@ -510,6 +556,44 @@ class MatchActions {
     }
 
 
+    static double_pushes = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const to_symbol = ins.to!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_to = To[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+            for (let sq_from of bb_from2) {
+                let aa_to = SymbolBitboard.double_pushes(position, from_symbol, sq_from)
+
+                aa_to = aa_to.bitand(bb_to2)
+
+                for (let sq_to of aa_to) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
+
+                    let move = Move.normal(sq_from, sq_to)
+                    history.nodes.appendChild(off, move)
+                }
+            }
+        }
+
+
+    }
 
     static pushes = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
@@ -1083,6 +1167,33 @@ class SymbolBitboard {
     }
 
 
+
+    static double_pushes = (position: Position, from_symbol: Symbol, sq_from: Square) => {
+        var result = Bitboard.Zero
+        switch (from_symbol.name) {
+            case 'pawn': {
+                result = Attacks.pawnMoves(sq_from, position.getColor(sq_from), 'forward2')
+                break
+            }
+            case 'knight': {
+                break
+            }
+            case 'king': {
+                break
+            }
+            case 'bishop':
+            case 'rook':
+            case 'queen': {
+                break
+            }
+        }
+
+        return result
+    }
+
+
+
+
     static pushes = (position: Position, from_symbol: Symbol, sq_from: Square) => {
         var result = Bitboard.Zero
         switch (from_symbol.name) {
@@ -1229,6 +1340,11 @@ class SymbolBitboard {
 
 export function matchInstruction(ins: Instruction, history: History, slice: Slice) {
     switch (ins.action.symbol!.name) {
+        case 'CapturePromotes': {
+            if (ins.becomes) {
+                MatchActions.capture_promotes(ins, history, slice)
+            }
+        } break
         case 'PushPromotes': {
             if (ins.becomes) {
                 MatchActions.push_promotes(ins, history, slice)
@@ -1237,6 +1353,11 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
         case 'Pushes': {
             if (ins.becomes) {
                 MatchActions.pushes(ins, history, slice)
+            }
+        } break
+        case 'DoublePushes': {
+            if (ins.becomes) {
+                MatchActions.double_pushes(ins, history, slice)
             }
         } break
         case 'PushBlocks': {
