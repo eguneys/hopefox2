@@ -93,15 +93,13 @@ class MatchFilters {
 
                 let aa_support = Bitboard.Zero
 
-                if (bb_support2) {
-                    for (let sq_support of bb_support2) {
+                for (let sq_support of bb_support2) {
 
-                        for (let sq_for of bb_to2) {
-                            let attack = Attacks.supportsFor(position, sq_support, sq_for, position.roleOn(sq_support)!)
-                            aa_support = aa_support.bitor(attack)
-                        }
-
+                    for (let sq_for of bb_to2) {
+                        let attack = Attacks.supportsFor(position, sq_support, sq_for, position.roleOn(sq_support)!)
+                        aa_support = aa_support.bitor(attack)
                     }
+
                 }
 
 
@@ -334,6 +332,45 @@ class MatchFilters {
 
         }
     }
+
+
+    static defends = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const Defend_symbol = fix_symbol_checks_to_check(ins.action.symbol!)
+        const defended_symbol = ins.to!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const Defended = history.table.getColumn(defended_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_defended = Defended[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_defended2 = bb_defended.bitand(SymbolBitboard.square(position, defended_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_defended = SymbolBitboard.captures(position, from_symbol, sq_from)
+
+                const bb_defended3 = bb_defended2.bitand(aa_defended)
+
+                for (let sq_defended of bb_defended3) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(defended_symbol, Bitboard.fromSquare(sq_defended))
+                    history.table.setLastRow(Defend_symbol, Attacks.rayBetweenFromTo(sq_from, sq_defended))
+
+                    history.nodes.appendChild(off, Move.None)
+                }
+            }
+        }
+
+    }
+
 
 
 
@@ -747,6 +784,61 @@ class MatchActions {
                 }
             }
         }
+    }
+
+
+    static singleSafeEvadeTo = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const to_symbol = ins.to!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_to = To[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+            for (let sq_from of bb_from2) {
+
+
+                const bb_covered = position.bb_color(opposite(position.getColor(sq_from)))
+
+                let aa_covered = Bitboard.Zero
+
+                for (let sq_covered of bb_covered) {
+                    let cover = Attacks.supportsFor(position, sq_covered, sq_from, position.roleOn(sq_covered)!)
+                    aa_covered = aa_covered.bitor(cover)
+                }
+
+
+
+                const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+
+                let bb_to3 = aa_to.bitand(bb_to2)
+                bb_to3 = bb_to3.bitdiff(aa_covered)
+
+                let sq_to = bb_to3.single()
+                if (sq_to !== undefined) {
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(to_symbol, Bitboard.fromSquare(sq_to))
+                    history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
+
+                    let move = Move.normal(sq_from, sq_to)
+                    history.nodes.appendChild(off, move)
+                }
+            }
+        }
+
+
     }
 
 
@@ -1370,6 +1462,11 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
                 MatchActions.movesTo(ins, history, slice)
             }
         } break
+        case 'SingleSafeEvadeTo': {
+            if (ins.becomes) {
+                MatchActions.singleSafeEvadeTo(ins, history, slice)
+            }
+        } break
         case 'EvadesTo': {
             if (ins.becomes) {
                 MatchActions.evadesTo(ins, history, slice)
@@ -1386,7 +1483,7 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
             if (ins.becomes) {
                 MatchActions.defends(ins, history, slice)
             } else {
-                //MatchFilters.checks(ins, history, slice)
+                MatchFilters.defends(ins, history, slice)
             }
         } break
         case 'Checks': {

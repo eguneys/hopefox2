@@ -124,11 +124,6 @@ queen2 *Captures bishop4 *becomes queen5
        .Checks king
        .isUnblockableFor king
 
-skewer_rook_vs_rook.gof
-rook_t *skewers king_o *and rook2_o *becomes rook3
-king *EvadesTo sq *becomes king2
-rook3 *Captures rook2 *becomes rook4
-
 ctn_double_hanging_pin_threat.gof
 knight_t *Captures knight2_o *becomes knight3
 queen_t *Captures knight3 *becomes queen2
@@ -289,6 +284,7 @@ rook2 *Captures rook *becomes rook3
 ctr_skewer_rook.gof
 rook_o .hanging
 rook2_t *skewers king_o *and rook *becomes rook3
+                                              .notAttacked
 king *EvadesTo sq *becomes king2
 rook3 *Captures rook *becomes rook4
 
