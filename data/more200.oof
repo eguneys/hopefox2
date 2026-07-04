@@ -134,11 +134,6 @@ rook *Captures rook3 *becomes rook4
 rook5_t *Captures rook4 *becomes rook5
         .Checks king
 
-ctr_double_hanging_queen_rook_ex.gof
-rook_t *Captures rook2_o *becomes rook3
-rook4_t *Captures rook3 *becomes rook5
-queen_t *Captures rook5 *becomes queen2
-
 zm_queen_w_knight_2checks.gof
 queen_t *Checks king_o *becomes queen2
                                    .onlyDefendedBy knight_o
@@ -166,7 +161,7 @@ king *EvadesTo sq *becomes king2
 queen2 *Checks king2 *becomes queen3
                                   .onlyDefendedBy rook
 
-ctr_bishop_fork.gof
+ctr_bishop_fork_kxp.gof
 rook_o .hanging
 bishop_t *Forks rook *and king_o *becomes bishop2
 king *Captures pawn_o *becomes king2
@@ -242,3 +237,9 @@ pawn_t *DoublePushes sq *becomes pawn2
 pawn2 .onlyDefendedBy pawn3_o
 queen_t *Captures pawn2 *becomes queen2
 pawn3 *Captures queen2 *becomes pawn4
+
+ctr_ex_rook_hanging.gof
+rook_t *Captures rook2_o *becomes rook3
+rook4_t *Captures rook3 *becomes rook5
+                                    .hanging
+queen_t *Captures rook5 *becomes queen2                                    

@@ -2,6 +2,7 @@ import { CsvPuzzle } from "./db.js"
 import { DebugMove } from "./debug.js"
 import { ScriptRunner } from "./runner.js"
 import { MoveTree } from "./tree.js"
+import * as log from './logs.js'
 
 export class AutoPoset {
 
@@ -19,8 +20,9 @@ export class AutoPoset {
         let bestTreeScripts: [string, MoveTree][] = []
         for (let [name, script] of this.runner) {
             let { moves, preview } = script.runOnPosition(csv.position)
-            if (moves.size > 0)
+            if (moves.size > 0) {
                 bestTreeScripts.push([name, moves])
+            }
         }
 
         const solutionSans = DebugMove.ucisAsSans(csv.position, csv.solution)

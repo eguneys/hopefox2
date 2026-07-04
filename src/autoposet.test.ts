@@ -14,7 +14,7 @@ import { Debug, Fen, Files, Position, Ranks } from './types.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
 let puzzles100 = puzzles.slice(0, 100).reverse()
-let puzzles200 = puzzles.slice(100, 150).reverse()
+let puzzles200 = puzzles.slice(0, 150).reverse()
 
 let fundamentals = read_oof(fs.readFileSync('data/more100.oof').toString())
 let more200 = read_oof(fs.readFileSync('data/more200.oof').toString())
@@ -64,12 +64,25 @@ ${csv.index} https://lichess.org/training/${csv.id}
 
 it('basic usage only', { timeout: 1000000 }, () => {
 
-    if (more200.length === 0) {
+    if (more200.length === 0 || fundamentals.length === 0) {
         return
     }
 
     let script_set = [...fundamentals, ...more200]
     let puzzle_set = puzzles200
+
+    let clashes = ''
+    for (let i = 0; i < script_set.length; i++) {
+        for (let j = i + 1; j < script_set.length; j++) {
+            if (script_set[i][0] === script_set[j][0]) {
+                clashes += `Name Clash: ${script_set[i][0]}\n`
+            }
+        }
+    }
+    if (clashes.length > 0) {
+        console.log(clashes)
+        return
+    }
 
     let autoposet = new AutoPoset(script_set)
 
