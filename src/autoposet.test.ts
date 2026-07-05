@@ -9,17 +9,22 @@ import { DebugMove } from './debug.js'
 import '../data/more100.oof?raw'
 //@ts-ignore
 import '../data/more200.oof?raw'
+//@ts-ignore
+import '../data/more300.oof?raw'
 import { ScriptFilter, ScriptRunner } from './runner.js'
 import { Debug, Fen, Files, Position, Ranks } from './types.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles100 = puzzles.slice(0, 100).reverse()
-let puzzles200 = puzzles.slice(0, 200).reverse()
+let puzzles200 = puzzles.slice(200, 230).reverse()
 
 let fundamentals = read_oof(fs.readFileSync('data/more100.oof').toString().trim())
 let more200 = read_oof(fs.readFileSync('data/more200.oof').toString().trim())
+let more300 = read_oof(fs.readFileSync('data/more300.oof').toString().trim())
 
 function read_oof(oof: string): [string, string][] {
+    if (oof.length === 0) {
+        return []
+    }
     let result: [string, string][] = []
     for (let blocks of oof.split(/\r?\n\r?\n/)) {
         let [script, ...text] = blocks.split(/\r?\n/)
@@ -35,7 +40,7 @@ function read_oof(oof: string): [string, string][] {
             if (m) {
                 let single = parseInt(m[1])
 
-                let csv = puzzles100.find(_ => _.index === single) ?? puzzles200.find(_ => _.index === single)!
+                let csv = puzzles200.find(_ => _.index === single) ?? puzzles200.find(_ => _.index === single)!
 
 
                 const solutionSans = DebugMove.ucisAsSans(csv.position, csv.solution)
@@ -64,11 +69,11 @@ ${csv.index} https://lichess.org/training/${csv.id}
 
 it('basic usage only', { timeout: 1000000 }, () => {
 
-    if (more200.length === 0 || fundamentals.length === 0) {
+    if (fundamentals.length === 0 || more200.length === 0 || more300.length === 0) {
         return
     }
 
-    let script_set = [...fundamentals, ...more200]
+    let script_set = [...fundamentals, ...more200, ...more300]
     let puzzle_set = puzzles200
 
     let clashes = ''
@@ -190,7 +195,7 @@ ${puzzle_set[i].index} https://lichess.org/training/${puzzle_set[i].id}
 
     let stats = ''
     stats += `Solved: ${nb_solved.length}/${puzzle_set.length} `
-    stats += `Scripts: ${fundamentals.length}+${more200.length} `
+    stats += `Scripts: ${fundamentals.length}+${more200.length}+${more300.length} `
     stats += `Posets: ${posets.length}`
     console.log(stats)
 })

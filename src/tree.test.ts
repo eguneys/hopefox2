@@ -18,6 +18,8 @@ it('basic usage', () => {
     expect(childrenNf3).toBeDefined()
     expect(childrenNf3!.length).toEqual(1)
     expect(DebugMove.Uci(e4e5Position, childrenNf3![0])).toEqual('g1f3')
+
+    expect(tree.getLeaves().length).toBe(1)
 })
 
 
@@ -38,6 +40,8 @@ it('variations', () => {
     expect(childrenNf3!.length).toEqual(2)
     expect(DebugMove.Uci(e4e5Position, childrenNf3![0])).toEqual('g1f3')
     expect(DebugMove.Uci(e4e5Position, childrenNf3![1])).toEqual('b1c3')
+
+    expect(tree.getLeaves().length).toBe(2)
 })
 
 

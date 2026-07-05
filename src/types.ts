@@ -66,6 +66,12 @@ export class Bitboard {
     }
 
     static get Rank8(): Bitboard { return new Bitboard(0, 0xff000000) }
+    static get Rank7(): Bitboard { return new Bitboard(0, 0x00ff0000) }
+    static get Rank6(): Bitboard { return new Bitboard(0, 0x0000ff00) }
+    static get Rank5(): Bitboard { return new Bitboard(0, 0x000000ff) }
+    static get Rank4(): Bitboard { return new Bitboard(0xff000000, 0) }
+    static get Rank3(): Bitboard { return new Bitboard(0x00ff0000, 0) }
+    static get Rank2(): Bitboard { return new Bitboard(0x0000ff00, 0) }
     static get Rank1(): Bitboard { return new Bitboard(0x000000ff, 0) }
 
     static get Full(): Bitboard { return Bitboard.Zero.complement() }

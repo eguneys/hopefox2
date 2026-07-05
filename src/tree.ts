@@ -90,4 +90,8 @@ export class MoveTree {
 
         return this.getLinesWith(result.map(_ => this.items[_].move))
     }
+
+    getLeaves() {
+        return this.items.filter((_, parent) => this.items.every(_ => _.parent !== parent))
+    }
 }

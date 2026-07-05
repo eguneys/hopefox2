@@ -672,7 +672,7 @@ class MatchActions {
                     history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
                     history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
 
-                    let move = Move.normal(sq_from, sq_to)
+                    let move = Move.promotion(sq_from, sq_to, becomes_symbol.name)
                     history.nodes.appendChild(off, move)
                 }
             }
