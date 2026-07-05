@@ -480,4 +480,3 @@ export function supportsFor(position: Position, sq_from: Square, sq_through: Squ
     }
     return result
 }
-

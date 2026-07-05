@@ -15,7 +15,7 @@ export function passed_pawns(position: Position): Bitboard {
 
     for (let b_pawn of position.bb_pawn.bitdiff(position.bb_white)) {
 
-        if (!Attacks.ray(b_pawn, 'up').intersects(occupied)) {
+        if (!Attacks.ray(b_pawn, 'down').intersects(occupied)) {
             result = result.set(b_pawn)
         }
     }

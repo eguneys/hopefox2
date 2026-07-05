@@ -196,3 +196,72 @@ bishop_t *Blocks Check *becomes bishop2
                                     .hanging
 rook2 *Captures bishop2 *becomes rook3
       .Checks king 
+
+ctq_queen_trap_w_rook_and_queen.gof
+rook_t *Checks queen_o *becomes rook2
+                                  .onlyDefendedBy queen2_o
+                                  .noSafeEvadableFor queen
+queen *Captures rook2 *becomes queen3
+queen2 *Captures queen3 *becomes queen4
+
+ctn_remove_defendor_with_tempo_on_queen.gof
+knight_o .onlyDefendedBy bishop_o
+knight2_t *Captures bishop *becomes knight2
+          .Checks queen_t
+pawn_t *Captures knight2 *becomes pawn2
+queen2_t *Captures knight *becomes queen3
+
+ctn_hanging_bishop_pin_to_rook.gof
+knight_o .hanging
+bishop_t *Pins knight *and rook_o *becomes bishop2
+rook_t *MovesTo sq *becomes rook2
+knight .hanging
+bishop2 *Captures knight *becomes bishop3
+
+ctr_pp_push_qs_to_stop.gof
+pawn_pt *Pushes sq *becomes pawn2
+                               .onlyDefendedBy rook_o
+rook2_t *Captures pawn2 *becomes rook3
+                                    .hanging
+rook *Captures rook3 *becomes rook4
+rook5_t *Checks king_o *becomes rook6
+king *EvadesTo sq2 *becomes king2
+
+m1_knight_mate.gof
+knight_t *Checks king_o *becomes knight2
+                                     .noSafeCapturable
+                                     .noSafeEvadableFor king
+
+ctq_bishop_discovery_hanging_queen.gof
+queen_o .hanging
+queen2_t .eyesThrough queen .through bishop_t
+bishop *Checks king_o *becomes bishop2
+                                   .hanging
+rook_t *Captures bishop2 *becomes rook2
+queen2 *Captures queen *becomes queen3
+
+eg_deflect_king_with_bxn.gof
+pawn_o .hanging
+bishop_t *Captures knight_o *becomes bishop2
+king_t *Captures bishop2 *becomes king2
+king3_t *Approaches pawn *becomes king4
+                                     .notAttacked
+
+ctb_pawn_fork.gof
+pawn_t *Captures knight_o *becomes pawn2
+                                     .onlyDefendedBy bishop_o
+       .Forks knight2_t .and bishop2_t
+bishop2 *Captures pawn2 *becomes bishop3
+                                     .hanging
+bishop4_t *Captures bishop3 *becomes bishop5
+
+ctb_overloaded_queen_unpin_capture_bishop.gof
+queen_t .hanging
+bishop_o .onlyDefendedBy queen2_o
+rook_o   .onlyDefendedBy queen2
+rook .eyesThrough queen .through bishop2_t
+bishop2 *Captures bishop *becomes bishop3
+                                        .hanging
+rook *Captures queen *becomes rook2
+queen2 .hanging
+bishop3 *Captures queen2 *becomes bishop4

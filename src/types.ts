@@ -51,8 +51,8 @@ export function king_distance(from: Square, to: Square) {
     const from_file = Files.indexOf(from[0]!)
     const to_file = Files.indexOf(to[0]!)
 
-    const from_rank = Ranks.indexOf(from[0]!)
-    const to_rank = Ranks.indexOf(to[0]!)
+    const from_rank = Ranks.indexOf(from[1]!)
+    const to_rank = Ranks.indexOf(to[1]!)
 
     return Math.max(Math.abs(from_file - to_file), Math.abs(from_rank - to_rank))
 }

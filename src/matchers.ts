@@ -1,6 +1,6 @@
 import { Instruction, Symbol } from "./parser.js";
 import { History, Slice } from './history.js'
-import { Bitboard, Debug, Move, opposite, Position, Square } from "./types.js";
+import { Bitboard, Debug, king_distance, Move, opposite, Position, Square } from "./types.js";
 import * as log from './logs.js'
 import * as Attacks from './attacks.js'
 import * as Pawns from './pawns.js'
@@ -483,7 +483,7 @@ class MatchFilters {
             const bb_forkedB2 = bb_forkedB.bitand(SymbolBitboard.square(position, forkedB_symbol))
 
             for (let sq_from of bb_from2) {
-                const aa_fork = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+                const aa_fork = SymbolBitboard.captures(position, from_symbol, sq_from)
 
                 let bb_forkedA3 = aa_fork.bitand(bb_forkedA2)
                 let bb_forkedB3 = aa_fork.bitand(bb_forkedB2)
@@ -729,6 +729,7 @@ class MatchActions {
         const To = history.table.getColumn(to_symbol)
         const Becomes = history.table.getColumn(becomes_symbol)
 
+
         for (let off = slice.off; off < slice.off + slice.len; off++) {
 
             const position = history.getPositionOf(off)
@@ -836,6 +837,54 @@ class MatchActions {
             }
         }
     }
+
+
+    static approaches = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const to_symbol = ins.to!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_to = To[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+            for (let sq_from of bb_from2) {
+                const aa_to = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+
+                for (let sq_approachTo of bb_to2) {
+
+                    let distanceFrom = king_distance(sq_from, sq_approachTo)
+
+                    for (let sq_to of aa_to) {
+
+                        let distanceTo = king_distance(sq_to, sq_approachTo)
+
+                        if (distanceTo < distanceFrom) {
+
+                            history.table.duplicateRow(off)
+
+                            history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                            history.table.setLastRow(to_symbol, Bitboard.fromSquare(sq_to))
+                            history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
+
+                            let move = Move.normal(sq_from, sq_to)
+                            history.nodes.appendChild(off, move)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
 
     static movesTo = (ins: Instruction, history: History, slice: Slice) => {
@@ -1167,7 +1216,7 @@ class MatchActions {
 
                 for (let sq_to of bb_to) {
 
-                    const aa_fork = SymbolBitboard.movesTo(position, from_symbol, sq_to)
+                    const aa_fork = SymbolBitboard.captures(position, from_symbol, sq_to)
 
                     let bb_forkedA3 = aa_fork.bitand(bb_forkedA2)
                     let bb_forkedB3 = aa_fork.bitand(bb_forkedB2)
@@ -1547,6 +1596,11 @@ class SymbolBitboard {
 
 export function matchInstruction(ins: Instruction, history: History, slice: Slice) {
     switch (ins.action.symbol!.name) {
+        case 'Approaches': {
+            if (ins.becomes) {
+                MatchActions.approaches(ins, history, slice)
+            }
+        }
         case 'CastlesLongTo': {
             if (ins.becomes) {
                 MatchActions.castles_long_to(ins, history, slice)
