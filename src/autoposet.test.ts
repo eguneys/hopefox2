@@ -17,7 +17,7 @@ import { ScriptFilter, ScriptRunner } from './runner.js'
 import { Debug, Fen, Files, Position, Ranks } from './types.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles200 = puzzles.slice(330, 340).reverse()
+let puzzles200 = puzzles.slice(350, 360).reverse()
 
 let skips = [244, 269, 309, 338]
 

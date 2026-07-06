@@ -233,3 +233,41 @@ rook_t *Captures queen2 *becomes rook2
 knight2 *Checks king2 *becomes knight3
                                    .noSafeEvadableFor king2
                                    .noSafeCapturable
+
+pp_remove_rook_push_pp.gof
+rook_t *Captures rook2_o *becomes rook3
+bishop_t *Captures rook3 *becomes bishop2
+pawn_tp *Pushes sq_7 *becomes pawn2
+
+ctr_qs_mt_.gof
+rook_t *Checks queen_o *becomes rook2
+queen_t *Checks king_o *becomes queen2
+                                   .onlyDefendedBy rook3_o
+queen3_t *Captures queen2 *becomes queen4
+rook3 *Captures queen4 *becomes rook4
+king *Captures rook4 *becomes king2
+
+ctq_knight_discovery_knight_recapture.gof
+queen_o .hanging
+queen2_t .eyesThrough queen .through knight_t
+knight *Checks king_o *becomes knight2
+knight3_t *Captures knight2 *becomes knight4
+queen2 *Captures queen *becomes queen3
+
+m2_qs_bishop_cover_rook_mate.gof
+queen_t *Captures pawn_o *becomes queen2
+                                      .hanging
+king_t *Captures queen2 *becomes king2
+rook_t *Checks king2 *becomes rook2
+                                 .noSafeCapturable
+                                 .noSafeEvadableFor king2
+                                 .isUnblockableFor king2
+
+ctn_remove_defender_with_tempo_on_hanging_rook.gof
+knight_o .onlyDefendedBy bishop_o
+rook_o .hanging
+knight2_t *Captures bishop *becomes knight3
+          .Checks rook
+pawn_t *Captures knight3 *becomes pawn2
+bishop2_t *Captures knight *becomes bishop3
+
