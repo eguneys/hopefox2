@@ -17,9 +17,9 @@ import { ScriptFilter, ScriptRunner } from './runner.js'
 import { Debug, Fen, Files, Position, Ranks } from './types.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles200 = puzzles.slice(320, 330).reverse()
+let puzzles200 = puzzles.slice(330, 340).reverse()
 
-let skips = [244, 269, 309]
+let skips = [244, 269, 309, 338]
 
 let fundamentals = read_oof(fs.readFileSync('data/more100.oof').toString().trim())
 let more200 = read_oof(fs.readFileSync('data/more200.oof').toString().trim())

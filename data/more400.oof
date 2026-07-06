@@ -172,3 +172,64 @@ knight_t *Captures queen2 *becomes knight2
 knight3_t *Checks king *becomes knight4
                                     .noSafeCapturable
                                     .noSafeEvadableFor king
+
+ma_remove_defender_knight_w_check_and_rook_invasion.gof
+bishop_t *Captures knight_o *becomes bishop2
+pawn_t *Captures bishop2 *becomes pawn2
+bishop3 *Checks king_o *becomes bishop4
+king_t *EvadesTo sq *becomes king2
+rook_t *Checks king2 *becomes rook2
+
+ctq_knight_discovery.gof
+bishop_t .eyesThrough queen_o .through knight_t
+knight *Checks king_o *becomes knight2
+pawn_t *Captures knight2 *becomes pawn2
+bishop_t *Captures queen *becomes bishop2
+
+ctr_ex_lure_into_bishop_fork.gof
+rook_t *Captures bishop_o *becomes rook2
+                                      .hanging
+rook3_t *Captures rook2 *becomes rook4
+bishop2_t *Forks king_o *and rook4 *becomes bishop3
+          .Checks king
+pawn_t *PushBlocks Check *becomes pawn2
+bishop3 *Captures rook4 *becomes bishop4
+
+ctn_queen_fork_knight_block.gof
+knight_o .hanging
+queen_t *Forks king_o *and knight *becomes queen2
+        .Checks king
+knight2_t *Blocks Check *becomes knight2
+queen2 *Captures knight *becomes queen3
+
+ctb_ex_overload_defended_queen_and_capture_hanging.gof
+bishop_o .hanging
+queen_t .onlyDefendedBy knight_t
+queen *Captures queen2_o *becomes queen3
+pawn_t *Captures queen3 *becomes pawn2
+knight_t *Captures bishop *becomes knight2
+
+ctq_rook_discovery_with_check.gof
+queen_o .hanging
+queen2_t .eyesThrough queen .through rook_t
+rook *Captures pawn_o *becomes rook2
+pawn2_t *Captures rook2 *becomes pawn2
+queen2 *Captures queen *becomes queen3
+
+ctb_immediate_hanging_then_rxrxr.gof
+bishop_o .hanging
+knight_t *Captures bishop *becomes knight2
+rook_t *Captures rook2_o *becomes rook3
+                                     .hanging
+rook4_t *Captures rook3 *becomes rook5
+
+m_smothered_knight_discovery.gof
+queen_t .eyesThrough king_o .through knight_t
+knight *Checks king *becomes knight2
+queen .Checks king
+king *EvadesTo sq *becomes king2
+queen_t *Checks king2 *becomes queen2
+rook_t *Captures queen2 *becomes rook2
+knight2 *Checks king2 *becomes knight3
+                                   .noSafeEvadableFor king2
+                                   .noSafeCapturable
