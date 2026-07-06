@@ -911,7 +911,7 @@ class MatchActions {
                             history.table.duplicateRow(off)
 
                             history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
-                            history.table.setLastRow(to_symbol, Bitboard.fromSquare(sq_to))
+                            history.table.setLastRow(to_symbol, Bitboard.fromSquare(sq_approachTo))
                             history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
 
                             let move = Move.normal(sq_from, sq_to)
@@ -1360,6 +1360,7 @@ class MatchActions {
 
                     const bb_checked3 = bb_checked2.bitand(aa_checked)
 
+
                     for (let sq_checked of bb_checked3) {
 
                         history.table.duplicateRow(off)
@@ -1625,6 +1626,9 @@ class SymbolBitboard {
             result = result.bitand(position.bb_turn())
         } else if (symbol.props.includes('o')) {
             result = result.bitand(position.bb_opponent())
+        }
+        if (symbol.props.includes('7')) {
+            result = result.bitand(Bitboard.Rank7.bitor(Bitboard.Rank2))
         }
 
         return result

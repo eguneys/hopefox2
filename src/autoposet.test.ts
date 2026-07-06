@@ -11,17 +11,20 @@ import '../data/more100.oof?raw'
 import '../data/more200.oof?raw'
 //@ts-ignore
 import '../data/more300.oof?raw'
+//@ts-ignore
+import '../data/more400.oof?raw'
 import { ScriptFilter, ScriptRunner } from './runner.js'
 import { Debug, Fen, Files, Position, Ranks } from './types.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles200 = puzzles.slice(0, 300).reverse()
+let puzzles200 = puzzles.slice(310, 320).reverse()
 
-let skips = [244, 269]
+let skips = [244, 269, 309]
 
 let fundamentals = read_oof(fs.readFileSync('data/more100.oof').toString().trim())
 let more200 = read_oof(fs.readFileSync('data/more200.oof').toString().trim())
 let more300 = read_oof(fs.readFileSync('data/more300.oof').toString().trim())
+let more400 = read_oof(fs.readFileSync('data/more400.oof').toString().trim())
 
 function read_oof(oof: string): [string, string][] {
     if (oof.length === 0) {
@@ -71,11 +74,11 @@ ${csv.index} https://lichess.org/training/${csv.id}
 
 it('basic usage only', { timeout: 1000000 }, () => {
 
-    if (fundamentals.length === 0 || more200.length === 0 || more300.length === 0) {
+    if (fundamentals.length === 0 || more200.length === 0 || more300.length === 0 || more400.length === 0) {
         return
     }
 
-    let script_set = [...fundamentals, ...more200, ...more300]
+    let script_set = [...fundamentals, ...more200, ...more300, ...more400]
     let puzzle_set = puzzles200
 
     let clashes = ''
