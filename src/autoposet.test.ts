@@ -17,7 +17,7 @@ import { ScriptFilter, ScriptRunner } from './runner.js'
 import { Debug, Fen, Files, Position, Ranks } from './types.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles200 = puzzles.slice(310, 320).reverse()
+let puzzles200 = puzzles.slice(320, 330).reverse()
 
 let skips = [244, 269, 309]
 
@@ -201,7 +201,7 @@ ${puzzle_set[i].index} https://lichess.org/training/${puzzle_set[i].id}
 
     let stats = ''
     stats += `Solved: ${nb_solved.length}/${puzzle_set.length} `
-    stats += `Scripts: ${fundamentals.length}+${more200.length}+${more300.length} `
+    stats += `Scripts: ${fundamentals.length}+${more200.length}+${more300.length}+${more400.length} `
     stats += `Posets: ${posets.length}`
     console.log(stats)
 })

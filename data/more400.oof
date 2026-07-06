@@ -110,3 +110,65 @@ pawn_t *Pushes sq2 *becomes pawn2
 pawn4_tp *Pushes sq3_7 *becomes pawn5
 pawn2 *Captures pawn3 *becomes pawn6
 pawn5 *PushPromotes sq4 *becomes queen
+
+m2_qs_rook_side_double_rook_help_knight_cover.gof
+queen_t *Captures knight_o *becomes queen2
+        .Checks king
+king_t *Captures queen2 *becomes king2
+rook_t *Checks king2 *becomes rook2
+                                 .noSafeEvadableFor king2
+                                 .noSafeCapturable
+
+exposed_king_rs_queen_w_bishop_help.gof
+rook_t *Captures knight_o *becomes rook2
+pawn_t *Captures rook2 *becomes pawn2
+                                   .hanging
+queen_t *Captures pawn2 *becomes queen2
+        .Checks king_t
+
+ctb_double_hanging_qxbxqxr.gof
+queen_t *Captures bishop_o *becomes queen2
+queen3_t *Captures queen2 *becomes queen4
+rook_t *Captures queen4 *becomes rook2 
+
+ctr_hanging_queen_ex_bishop_setup_discovery_qs.gof
+rook5_o .onlyDefendedBy queen2_o
+queen_t .hanging
+bishop_t *Captures pawn_o *becomes bishop2
+                                      .onlyDefendedBy rook_o
+         .Checks king_t
+                    .noSafeEvadableFor king
+queen2 *Captures bishop2 *becomes queen3
+rook *Captures queen3 *becomes rook2
+rook3_t *Captures queen *becomes rook4
+rook2 *Captures rook5 *becomes rook6
+
+pp_capture_rook_behind_and_push.gof
+knight_t *Captures rook_o *becomes knight2
+pawn_t *Captures knight2 *becomes pawn2
+pawn3_tp *Pushes sq_7 *becomes pawn4
+
+ctn_capture_double_defended_knights_pinned_to_hanging_bishop.gof
+bishop_o .hanging
+queen_t .eyesThrough bishop *through knight_o
+                                          .onlyDefendedBy knight2_o
+knight3_t *Captures knight2 *becomes knight4
+pawn_t *Captures knight4 *becomes pawn2
+queen *Captures knight *becomes queen2 
+
+ctb_overloaded_pawn_double_hanging_bishop.gof
+pawn_o .Defends bishop_o
+queen2_t *Captures queen *becomes queen3
+pawn *Captures queen3 *becomes pawn2
+rook_t *Captures bishop *becomes rook2
+rook3_t *Captures rook2 *becomes rook4
+                                   .hanging
+rook5_t *Captures rook4 *becomes rook6
+
+m_smothered.gof
+queen_t *Checks king_o *becomes queen2
+                                    .onlyDefendedBy bishop_o
+knight_t *Captures queen2 *becomes knight2
+knight3_t *Checks king *becomes knight4
+                                    .noSafeCapturable
+                                    .noSafeEvadableFor king
