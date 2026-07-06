@@ -317,3 +317,73 @@ queen_t *eyesThrough king_o *through bishop2 *becomes queen2
 knight_t *Defends bishop2 *becomes knight2
                                        .notAttacked
          .Checks queen2
+
+ctr_bishop_skewer_zone_w_rook.gof
+rook_o .hanging
+bishop_t *skewers rook *and king_o *becomes bishop2
+king *EvadesTo sq *becomes king2
+bishop2 *Captures rook *becomes bishop3
+
+ctr_immediate_hanging_to_bishop_after_queen_ex.gof
+queen_t .hanging
+bishop_t .Checks rook_o
+queen *Captures queen2_o *becomes queen3
+knight_t *Captures queen3 *becomes knight2
+         .Checks bishop
+bishop *Captures rook *becomes bishop2
+
+ctq_rook_skewer_zone_w_bishop.gof
+queen_o .hanging
+rook_t *skewers queen *and king_o *becomes rook2
+                                               .onlyDefendedBy bishop_o
+king *EvadesTo sq *becomes king2
+rook2 *Captures queen *becomes rook3
+
+eg_promote_rook_check.gof
+pawn_tp *Pushes sq *becomes pawn2
+        .Checks king_t
+king *EvadesTo sq2 *becomes king2
+pawn2 *PushPromotes sq3 *becomes queen
+rook_t *Checks king3_o *becomes rook2
+king3 *EvadesTo sq4 *becomes king4
+
+ctr_avoid_hang_by_check.gof
+rook3_o .hanging
+rook2_t .Checks rook3
+rook_t .onlyDefendedBy rook2
+rook2 .onlyDefendedBy rook
+queen_o .Checks rook
+rook *Checks king_o *becomes rook4
+king *SingleSafeEvadeTo sq *becomes king2
+rook2 *Captures rook3 *becomes rook5
+      .Checks king2
+
+m_queen_knight_block_is_pinned.gof
+queen_t *Checks king_o *becomes queen2
+king *EvadesTo sq *becomes king2
+queen2 *Checks king2 *becomes queen3
+                                 .onlyDefendedBy knight_o
+                                 .noSafeCapturable
+                                 .noSafeEvadableFor king2
+
+ctb_block_defense_with_check.gof
+bishop_o .onlyDefendedBy queen_o
+bishop2_t *Checks king_o *becomes bishop3
+                                   .onlyDefendedBy pawn_o
+queen .eyesThrough bishop .through bishop3
+king *EvadesTo sq *becomes king2
+rook_t *Captures bishop *becomes rook2
+
+ctb_remove_defender_knight_with_check.gof
+bishop_o .onlyDefendedBy knight_o
+bishop2_t *Captures knight *becomes bishop3
+          .Checks king_t
+king *EvadesTo sq *becomes king2
+bishop4_t *Captures bishop *becomes bishop5
+
+ctq_rook_discovered_check_with_queen_attack.gof
+queen_o .hanging
+queen2_t .eyesThrough king_o .through rook_t
+rook *Checks queen *becomes rook2
+king *EvadesTo sq *becomes king2
+rook2 *Captures queen *becomes rook3
