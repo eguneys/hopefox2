@@ -387,3 +387,66 @@ queen2_t .eyesThrough king_o .through rook_t
 rook *Checks queen *becomes rook2
 king *EvadesTo sq *becomes king2
 rook2 *Captures queen *becomes rook3
+
+ctq_rook_fork_double_exchange.gof
+rook_t *Forks king_o *and queen_o *becomes rook2
+                                             .onlyDefendedBy rook3_o
+queen_t *Captures rook2 *becomes queen2
+rook3 *Captures queen2 *becomes rook4 
+
+ctr_knight_fork_after_rook_ex.gof
+rook_t *Captures rook2_o *becomes rook3
+                                     .hanging
+rook4_t *Captures rook3 *becomes rook5
+                                    .hanging
+knight_t *Forks king_o *and rook5 *becomes knight2
+king *Defends rook5 *becomes king2
+knight2 *Captures rook5 *becomes knight3
+
+ctr_corresponding_queen_ex.gof
+queen_o .hanging
+    .onlyAttackedBy rook_t
+rook2_o .Checks king_t
+queen2_t *Captures rook2 *becomes queen3
+bishop_t *Captures queen3 *becomes bishop2
+rook *Captures queen *becomes rook2
+
+m3_rs_queen_bishop_mate.gof
+rook_t *Captures pawn_o *becomes rook2
+pawn2_t *Captures rook2 *becomes pawn3
+queen_t *Checks king_o *becomes queen2
+                                   .onlyDefendedBy bishop_o
+king *SingleSafeEvadeTo sq *becomes king2
+queen2 *Checks king2 *becomes queen3
+                                 .noSafeEvadableFor king2
+                                 .noSafeCapturable
+                                 .onlyDefendedBy bishop
+
+ctb_bishop_discovery_through_capture_knight_tempo.gof
+bishop_o .hanging
+queen_t .eyesThrough bishop .through bishop2_t
+bishop2 *Captures knight_o *becomes bishop3
+pawn_t *Captures bishop3 *becomes pawn2
+queen *Captures bishop *becomes queen2
+
+ctb_hanging_queen_fork.gof
+bishop_o .hanging
+queen_t *Forks king_o *and bishop *becomes queen2
+        .Checks king
+pawn_t *PushBlocks Check *becomes pawn2
+queen2 *Captures bishop *becomes queen3
+
+ctn_hanging_w_king_underrook_check_q_ex_after.gof
+knight_o .hanging
+rook_o .Checks king_t
+king *Captures knight *becomes king2
+queen_t *Captures queen2_o *becomes queen3
+                                     .hanging
+bishop_t *Captures queen3 *becomes bishop2
+
+ctb_queen_forks_hanging_bishop_and_rook.gof
+bishop_o .hanging
+rook_o .hanging
+queen_t *Forks bishop *and rook *becomes queen2
+rook *EvadesTo sq *becomes rook2
+queen2 *Captures bishop *becomes queen3
