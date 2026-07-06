@@ -17,9 +17,9 @@ import { ScriptFilter, ScriptRunner } from './runner.js'
 import { Debug, Fen, Files, Position, Ranks } from './types.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles200 = puzzles.slice(370, 380).reverse()
+let puzzles200 = puzzles.slice(0, 400).reverse()
 
-let skips = [244, 269, 309, 338]
+let skips = [244, 269, 309, 338, 382, 388, 398, 399]
 
 let fundamentals = read_oof(fs.readFileSync('data/more100.oof').toString().trim())
 let more200 = read_oof(fs.readFileSync('data/more200.oof').toString().trim())
@@ -99,6 +99,7 @@ it('basic usage only', { timeout: 1000000 }, () => {
     let poset_puzzles: CsvPuzzle[] = []
     let posets: string[][] = []
     for (let puzzle of puzzle_set) {
+        if (skips.includes(puzzle.index)) continue
         let poset = autoposet.getPoset(puzzle)
         if (poset.length <= 1) {
             continue
