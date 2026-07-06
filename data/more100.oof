@@ -284,7 +284,7 @@ rook2 *Captures rook *becomes rook3
 
 ctr_skewer_rook.gof
 rook_o .hanging
-rook2_t *skewers king_o *and rook *becomes rook3
+rook2_t *skewers rook *and king_o *becomes rook3
                                               .notAttacked
 king *EvadesTo sq *becomes king2
 rook3 *Captures rook *becomes rook4

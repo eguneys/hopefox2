@@ -45,8 +45,8 @@ knight2_t *Defends pawn *becomes knight3
 ppp_clear_with_rook_check.gof
 rook_t *Checks king_o *becomes rook2
 king *EvadesTo sq *becomes king2
-pawn_t *PushPromotes rook_x *becomes pawn2
-rook3_t *Captures pawn2 *becomes rook4
+pawn_t *PushPromotes rook_x *becomes queen
+rook3_t *Captures queen *becomes rook4
                                     .hanging
 rook2 *Captures rook4 *becomes rook5
 
@@ -280,7 +280,7 @@ bishop3_t *Blocks Check *becomes bishop4
 bishop2 *Captures bishop4 *becomes bishop5
 
 skewer_rook_king_knight.gof
-rook_t *skewers king_o *and knight_o *becomes rook2
+rook_t *skewers knight_o *and king_o *becomes rook2
 king *EvadesTo sq *becomes king2
 rook2 *Captures knight *becomes rook3
 
@@ -302,7 +302,7 @@ queen2 *Captures queen3 *becomes queen4
 
 ctr_queen_skewer.gof
 rook_o .hanging
-queen_t *skewers king_o *and rook *becomes queen2
+queen_t *skewers rook *and king_o *becomes queen2
 king *EvadesTo sq *becomes king2
 queen2 *Captures rook *becomes queen3
 
@@ -323,6 +323,7 @@ bishop_o .hanging
 queen_t *Forks king_o *and bishop *becomes queen2
         .Checks king
 queen3_t *Blocks Check *becomes queen4
+                                   .onlyAttackedBy queen2
 queen2 *Captures bishop *becomes queen5
 
 side_rank_mate_rook_check.gof
@@ -396,7 +397,7 @@ queen *Captures queen2 *becomes queen3
 
 ctr_skewer_rook_kxp.gof
 rook_o .hanging
-rook2_t *skewers king_o *and rook *becomes rook3
+rook2_t *skewers rook *and king_o *becomes rook3
                                               .notAttacked
 king *Captures pawn_o *becomes king2
 rook3 *Captures rook *becomes rook4
@@ -459,7 +460,7 @@ rook2 *Captures rook *becomes rook3
 
 ctq_skewer_queen.gof
 queen2_o .hanging
-queen *skewers king_o *and queen2 *becomes queen3
+queen *skewers queen2 *and king_o *becomes queen3
                                               .notAttacked
 king *EvadesTo sq *becomes king2
 queen3 *Captures queen2 *becomes queen4

@@ -100,7 +100,7 @@ queen_t *Captures pawn_o *becomes queen2
                                       .onlyDefendedBy bishop_o
         .Checks king_t
 king *EvadesTo sq *becomes king2
-queen2 *skewers king2 *and rook *becomes queen3
+queen2 *skewers rook *and king2 *becomes queen3
                                             .notAttacked
 king2 *EvadesTo sq2 *becomes king3
 queen3 *Captures rook *becomes queen4
@@ -129,7 +129,7 @@ ctr_queen_skewer_after_knight_check.gof
 rook_o .hanging
 knight_t *Checks king_o *becomes knight2
 king *EvadesTo sq *becomes king2
-queen_t *skewers king2 *and rook *becomes queen2
+queen_t *skewers rook *and king2 *becomes queen2
 king2 *EvadesTo sq2 *becomes king3
 queen2 *Captures rook *becomes queen3
 
@@ -177,7 +177,7 @@ ctq_rook_skewer_with_check_lure.gof
 rook_t *Checks king_o *becomes rook2
                                   .onlyDefendedBy bishop_o
 king_t *SingleSafeEvadeTo sq *becomes king2
-rook2 *skewers king2 *and queen_o *becomes rook3
+rook2 *skewers queen_o *and king2 *becomes rook3
 king2 *EvadesTo sq2 *becomes king3
 rook3 *Captures queen *becomes rook4
 
@@ -450,3 +450,76 @@ rook_o .hanging
 queen_t *Forks bishop *and rook *becomes queen2
 rook *EvadesTo sq *becomes rook2
 queen2 *Captures bishop *becomes queen3
+
+ctr_queen_mate_check_blocked_by_g6_capture_pinned_hanging_rook.gof
+rook_o .hanging
+queen_t *Checks king_o *becomes queen2
+        .eyesThrough rook_t .through pawn_t
+pawn2_t *PushBlocks Check *becomes pawn3
+                                    .onlyDefendedBy pawn
+knight_t *Captures pawn3 *becomes knight2
+pawn *Captures knight2 *becomes pawn4
+queen2 *Captures rook *becomes queen3
+
+m2_pinned_bishop_mate.gof
+rook_t *Captures bishop_o *becomes rook2
+       .Checks king
+knight_t *Captures rook2 *becomes knight2
+queen_t *Captures knight2 *becomes queen2
+        .Checks king
+                                       .noSafeEvadableFor king
+                                       .isUnblockableFor king
+
+ctq_knight_lure_discovery.gof
+knight_t *Forks king_o *and rook_o *becomes knight2
+king *Captures bishop_o *becomes king2
+queen_t .eyesThrough king2 .through knight2
+knight2 *Captures rook *becomes knight3
+        .Checks queen2_t
+king2 *EvadesTo sq *becomes king3
+knight3 *Captures queen2 *becomes knight4
+
+ctb_queen_exchange_hanging_vs_defended.gof
+queen_o .hanging
+queen2_t .onlyDefendedBy pawn_t
+rook_t *Captures queen *becomes rook2
+bishop_t *Captures queen2 *becomes bishop2
+pawn *Captures bishop2 *becomes pawn2
+
+ctq_knight_fork_knight_hangs_bishop_hangs.gof
+bishop_o .hanging
+rook_t .eyesThrough bishop .through knight_t
+knight *Forks king_o *and queen_o *becomes knight2
+king *EvadesTo sq *becomes king2
+knight2 *Captures queen *becomes knight3
+pawn_t *Captures knight3 *becomes pawn2
+rook *Captures bishop *becomes rook2
+
+ctr_knight_fork_king_and_rook.gof
+knight_t *Forks queen_o *and rook_o *becomes knight2
+queen_t *EvadesTo sq *becomes queen2
+knight2 *Captures rook *becomes knight3
+
+ctr_knight_fork_through_pinned_pawn_to_hanging_rook.gof
+rook_o .hanging
+rook2_t .eyesThrough rook .through pawn_o
+knight_t *Forks queen_o *and rook *becomes knight2
+pawn *Captures knight2 *becomes pawn2
+rook2 *Captures rook *becomes rook3
+
+ctr_defended_hanging_after_queen_ex.gof
+rook_o .onlyDefendedBy rook2_o
+king_t .Checks rook
+rook3_t .Checks rook
+queen_t .hanging
+queen *Captures queen2_o *becomes queen3
+                                      .hanging
+king2_t *Captures queen3 *becomes king3
+rook3 *Captures rook *becomes rook4
+
+ctn_double_hanging_bn_vs_nn.gof
+bishop_t *Captures knight_o *becomes bishop2
+         .Checks king_t
+knight2_t *Captures bishop2 *becomes knight3
+                                         .hanging
+queen_t *Captures knight3 *becomes queen2 
