@@ -260,6 +260,44 @@ class MatchFilters {
 
 
 
+    static onlyAttackedBy = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const to_symbol = ins.to!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+
+            const bb_to = To[off]
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+
+            for (let sq_from of bb_from2) {
+
+                const bb_defends = Attacks.allAttackersOf(position, sq_from)
+                const only_defend = bb_defends.single()
+
+                if (only_defend !== undefined && bb_to2.has(only_defend)) {
+
+                    history.table.duplicateRow(off)
+
+                    history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                    history.table.setLastRow(to_symbol, Bitboard.fromSquare(only_defend))
+
+                    history.nodes.appendChild(off, Move.None)
+                }
+            }
+        }
+
+    }
+
+
+
 
 
     static onlyDefendedBy = (ins: Instruction, history: History, slice: Slice) => {
@@ -1023,8 +1061,8 @@ class MatchActions {
 
     static eyesThrough = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
-        const through_symbol = ins.to!.symbol!
-        const to_symbol = ins.and!.symbol!
+        const to_symbol = ins.to!.symbol!
+        const through_symbol = ins.and!.symbol!
         const becomes_symbol = ins.becomes!.symbol!
         const From = history.table.getColumn(from_symbol)
         const To = history.table.getColumn(to_symbol)
@@ -1051,7 +1089,6 @@ class MatchActions {
                     const aa_to2 = SymbolBitboard.movesTo(position, from_symbol, sq_from2)
 
                     const bb_through3 = aa_to2.bitand(bb_through2)
-
                     for (let sq_through of bb_through3) {
                         const aa_through = SymbolBitboard.movesThrough(position, from_symbol, sq_from2, sq_through).without(sq_through)
 
@@ -1713,6 +1750,12 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
                 MatchFilters.onlyDefendedBy(ins, history, slice)
             }
         } break
+        case 'onlyAttackedBy': {
+            if (ins.becomes) {
+            } else {
+                MatchFilters.onlyAttackedBy(ins, history, slice)
+            }
+        } break
         case 'notAttacked': {
             if (ins.becomes) {
             } else {
@@ -1727,7 +1770,7 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
         } break
         case 'eyesThrough': {
             if (ins.becomes) {
-                //MatchActions.evadesTo(ins, history, slice)
+                MatchActions.eyesThrough(ins, history, slice)
             } else {
                 MatchFilters.eyesThrough(ins, history, slice)
             }

@@ -265,3 +265,55 @@ bishop2 *Captures bishop *becomes bishop3
 rook *Captures queen *becomes rook2
 queen2 .hanging
 bishop3 *Captures queen2 *becomes bishop4
+
+bm_queen_zone_in_check_qs_rook_mates_with_recapture.gof
+queen_t *Checks king_o *becomes queen2
+                                    .onlyDefendedBy rook_o
+king *EvadesTo sq *becomes king2
+queen2 *Checks king2 *becomes queen3
+                                 .onlyDefendedBy rook
+                                 .isUnblockableFor king2
+                                 .noSafeEvadableFor king2
+rook2_t *Captures queen3 *becomes rook3
+                                     .hanging
+rook *Captures rook3 *becomes rook4
+                                 .isUnblockableFor king2
+                                 .noSafeEvadableFor king2
+                                 .notAttacked
+
+ctr_bishop_pin.gof
+rook_o .hanging
+bishop_t *Pins rook *to king_o *becomes bishop2
+king *EvadesTo sq *becomes king2
+bishop2 *Captures rook *becomes bishop3
+
+ctp_overloaded_queen_rook_fork.gof
+rook_o .onlyDefendedBy queen_o
+pawn_o .onlyDefendedBy queen
+rook2_t *Captures pawn *becomes rook3
+        .Forks king_t .and queen
+queen *Captures rook3 *becomes queen2
+rook .hanging
+queen3_t *Captures rook *becomes queen4
+
+ctq_queen_trap_w_bishop_and_queen.gof
+bishop_t *Checks queen_o *becomes bishop2
+                                  .onlyDefendedBy queen2_o
+                                  .noSafeEvadableFor queen
+queen *Captures bishop2 *becomes queen3
+queen2 *Captures queen3 *becomes queen4
+
+ctq_queen_trap_w_bishop_and_rook.gof
+bishop_t *Checks queen_o *becomes bishop2
+                                  .onlyDefendedBy rook_o
+                                  .noSafeEvadableFor queen
+queen *Captures bishop2 *becomes queen3
+rook *Captures queen3 *becomes rook4
+
+ctr_defend_mate_threat_w_knight.gof
+bishop_t *Captures rook_o *becomes bishop2
+                                       .onlyAttackedBy bishop3_t 
+queen_t *eyesThrough king_o *through bishop2 *becomes queen2
+knight_t *Defends bishop2 *becomes knight2
+                                       .notAttacked
+         .Checks queen2

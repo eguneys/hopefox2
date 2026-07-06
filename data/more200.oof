@@ -29,6 +29,7 @@ queen_t *Captures rook5 *becomes queen2
 ctr_hanging_queen_fork.gof
 rook_o .hanging
 queen_t *Forks king_o *and rook *becomes queen2
+                                            .notAttacked
 king *EvadesTo sq *becomes king2
 queen2 *Captures rook *becomes queen3
 
