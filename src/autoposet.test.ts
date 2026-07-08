@@ -17,7 +17,7 @@ import { ScriptFilter, ScriptRunner } from './runner.js'
 import { Debug, Fen, Files, Position, Ranks } from './types.js'
 
 let puzzles = read_csv(fs.readFileSync('data/athousand_sorted.csv').toString())
-let puzzles200 = puzzles.slice(0, 400).reverse()
+let puzzles200 = puzzles.slice(950, 1000).reverse()
 
 let skips = [244, 269, 309, 338, 382, 388, 398, 399]
 
@@ -26,7 +26,7 @@ let more200 = read_oof(fs.readFileSync('data/more200.oof').toString().trim())
 let more300 = read_oof(fs.readFileSync('data/more300.oof').toString().trim())
 let more400 = read_oof(fs.readFileSync('data/more400.oof').toString().trim())
 
-function read_oof(oof: string): [string, string][] {
+export function read_oof(oof: string, puzzle_set: CsvPuzzle[] = puzzles200): [string, string][] {
     if (oof.length === 0) {
         return []
     }
@@ -45,7 +45,7 @@ function read_oof(oof: string): [string, string][] {
             if (m) {
                 let single = parseInt(m[1])
 
-                let csv = puzzles200.find(_ => _.index === single) ?? puzzles200.find(_ => _.index === single)!
+                let csv = puzzle_set.find(_ => _.index === single) ?? puzzle_set.find(_ => _.index === single)!
 
 
                 const solutionSans = DebugMove.ucisAsSans(csv.position, csv.solution)
@@ -72,7 +72,7 @@ ${csv.index} https://lichess.org/training/${csv.id}
     return result
 }
 
-it('basic usage only', { timeout: 1000000 }, () => {
+it('basic usage', { timeout: 1000000 }, () => {
 
     if (fundamentals.length === 0 || more200.length === 0 || more300.length === 0 || more400.length === 0) {
         return

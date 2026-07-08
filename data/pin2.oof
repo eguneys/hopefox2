@@ -1,0 +1,47 @@
+first.gof
+rook_o .hanging
+bishop_t *Captures knight_o *becomes bishop2
+bishop3_t *Captures bishop2 *becomes bishop4
+          .hanging
+knight2_t *Forks queen_o *and bishop4 *becomes knight3
+queen *SingleSafeDefendFor bishop4 *becomes queen2
+rook .hanging
+knight3 *Checks rook *becomes knight4
+        .notAttacked
+        .noSafeEvadableFor rook
+
+second.gof
+pawn2_o .onlyDefendedBy pawn_o
+bishop_t .eyesThrough king_o .through pawn
+queen_t *Captures pawn2 *becomes queen2
+king *SingleSafeEvadeTo sq *becomes king2
+queen2 *Captures pawn *becomes queen3
+       .noSafeEvadableFor king2
+       .noSafeCapturable
+
+third.gof
+bishop_t *Captures pawn_o *becomes bishop2
+         .Forks king_t .and rook_t
+         .Forks king_t .and knight_t
+knight2_t *Captures bishop2 *becomes knight3 
+          .hanging
+queen_t *Captures knight3 *becomes queen2 
+
+mate_in_3.gof
+queen_t *Captures pawn_o *becomes queen2
+        .Checks king_t
+        .isUnblockableFor king
+pawn2_t *Captures queen2 *becomes pawn3
+rook_t *Captures pawn3 *becomes rook2
+       .Checks king
+       .isUnblockableFor king
+king *SingleSafeEvadeTo sq *becomes king2
+rook3_t *Checks king2 *becomes rook4
+                                 .notAttacked
+                                 .noSafeEvadableFor king2
+knight_t *Blocks Check *becomes knight2 
+rook4 *Captures knight2 *becomes rook5
+      .Checks king2
+      .isUnblockableFor king2
+      .noSafeEvadableFor king2
+      .noSafeCapturable

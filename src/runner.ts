@@ -10,7 +10,7 @@ export class ScriptRunner {
 
     history: History
 
-    private constructor(instructions: Instruction[]) {
+    private constructor(public instructions: Instruction[]) {
         this.history = new History(instructions)
     }
 

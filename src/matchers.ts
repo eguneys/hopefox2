@@ -963,6 +963,61 @@ class MatchActions {
     }
 
 
+    static singleSafeDefendFor = (ins: Instruction, history: History, slice: Slice) => {
+        const from_symbol = ins.from.symbol!
+        const to_symbol = ins.to!.symbol!
+        const becomes_symbol = ins.becomes!.symbol!
+        const From = history.table.getColumn(from_symbol)
+        const To = history.table.getColumn(to_symbol)
+        const Becomes = history.table.getColumn(becomes_symbol)
+
+        for (let off = slice.off; off < slice.off + slice.len; off++) {
+
+            const position = history.getPositionOf(off)
+
+            const bb_from = From[off]
+            const bb_to = To[off]
+
+            const bb_from2 = bb_from.bitand(SymbolBitboard.square(position, from_symbol))
+            const bb_to2 = bb_to.bitand(SymbolBitboard.square(position, to_symbol))
+
+            for (let sq_from of bb_from2) {
+
+                const bb_covered = position.bb_color(opposite(position.getColor(sq_from)))
+
+                let aa_covered = Bitboard.Zero
+
+                for (let sq_covered of bb_covered) {
+                    let cover = Attacks.supportsFor(position, sq_covered, sq_from, position.roleOn(sq_covered)!)
+                    aa_covered = aa_covered.bitor(cover)
+                }
+
+                for (let sq_defend of bb_to2) {
+                    let aa_defending = SymbolBitboard.movesTo(position, from_symbol, sq_defend)
+                    let aa_moves = SymbolBitboard.movesTo(position, from_symbol, sq_from)
+
+
+                    let sq_to = aa_defending.bitand(aa_moves.bitdiff(aa_covered)).single()
+
+                    if (sq_to !== undefined) {
+                        history.table.duplicateRow(off)
+
+                        history.table.setLastRow(from_symbol, Bitboard.fromSquare(sq_from))
+                        history.table.setLastRow(to_symbol, Bitboard.fromSquare(sq_defend))
+                        history.table.setLastRow(becomes_symbol, Bitboard.fromSquare(sq_to))
+
+                        let move = Move.normal(sq_from, sq_to)
+                        history.nodes.appendChild(off, move)
+                    }
+                }
+            }
+        }
+
+
+    }
+
+
+
     static singleSafeEvadeTo = (ins: Instruction, history: History, slice: Slice) => {
         const from_symbol = ins.from.symbol!
         const to_symbol = ins.to!.symbol!
@@ -1680,6 +1735,11 @@ export function matchInstruction(ins: Instruction, history: History, slice: Slic
         case 'SingleSafeEvadeTo': {
             if (ins.becomes) {
                 MatchActions.singleSafeEvadeTo(ins, history, slice)
+            }
+        } break
+        case 'SingleSafeDefendFor': {
+            if (ins.becomes) {
+                MatchActions.singleSafeDefendFor(ins, history, slice)
             }
         } break
         case 'EvadesTo': {
