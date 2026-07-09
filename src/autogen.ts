@@ -210,64 +210,56 @@ export class ScriptBinder {
 
 export class AutoGen {
 
-    static run = (position: Position) => {
-        let res = new AutoGen(position)
-        return res.getScripts()
+    static fromScripts = (scripts: string[]) => {
+        return new AutoGen(scripts)
     }
 
-    constructor(private position: Position) {
-
+    runners: ScriptRunner[]
+    private constructor(private scripts: string[]) {
+        this.runners = scripts.map(_ => ScriptRunner.parse(_))
     }
 
-    getScripts() {
+    genScriptsOnPosition(position: Position) {
 
+        const step = (depth: number, pos: Position, instructions: Instruction[], script_list: number[]): number[][] => {
+            if (depth === 0) {
+                return []
+            }
+            let result = []
+            for (let i = 0; i < this.runners.length; i++) {
+                let runner = ScriptRunner.fromList(
+                    ScriptBinder.bind(instructions, this.runners[i].instructions).list)
+                console.log(ScriptBinder.bind(instructions, this.runners[i].instructions).writeList())
+                console.log()
+                console.log()
+                console.log()
+                let { moves } = runner.runOnPosition(pos)
+                let matched_lines = moves.getLinesWith([]).filter(_ => _.length > 0)
 
-        let use3 = `
-rook_o .hanging
-bishop_t *Captures knight_o *becomes bishop2
-bishop3_t *Captures bishop2 *becomes bishop4
-          .hanging
-`.trim()
+                for (let line of matched_lines) {
+                    let p2 = Position.clone(pos)
 
-        let use2 = `
-rook_o .hanging
-bishop_o .hanging
-knight_t *Forks queen_o *and bishop *becomes knight2
-queen *SingleSafeDefendFor bishop *becomes queen2
-`.trim()
-
-
-        let use1 = `
-rook_o .hanging
-knight_t *Checks rook *becomes knight2
-         .notAttacked
-         .noSafeEvadableFor rook
-`.trim()
-
-        let p1 = ScriptRunner.parse(use1)
-        let p2 = ScriptRunner.parse(use2)
-        let p3 = ScriptRunner.parse(use3)
-
-
-
-        let p12 = ScriptBinder.bind(p2.instructions, p1.instructions)
-
-        let p23 = ScriptBinder.bind(p3.instructions, p2.instructions)
-        let p123 = ScriptBinder.bind(p23.list, p1.instructions)
-
-        let p1_res = p1.runOnPosition(this.position)
-
-        if (p1_res.moves.getLinesWith([]).filter(_ => _.length > 0).length > 0) {
-            return [ScriptBinder.bind(p1.instructions, []).writeList()]
+                    for (let move of line) {
+                        p2.makeMove(move)
+                    }
+                    result.push(...step(depth - 1, p2, runner.instructions, [...script_list, i]))
+                }
+            }
+            if (result.length === 0) {
+                return [script_list]
+            }
+            return result
         }
 
-        let p12_res = ScriptRunner.parse(p12.writeList()).runOnPosition(this.position)
+        let result = []
+        let lists = step(3, position, [], [])
 
-        if (p12_res.moves.getLinesWith([]).filter(_ => _.length > 0).length > 0) {
-            return [p12.writeList()]
+        for (let list of lists) {
+            let m = list.reduce((a, b) => ScriptBinder.bind(a.list, this.runners[b].instructions), ScriptBinder.bind([], []))
+            result.push(m.writeList())
         }
-
-        return [p123.writeList()]
+        return { lists: result, indexes: lists }
     }
+
 
 }

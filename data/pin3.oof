@@ -1,0 +1,16 @@
+a.gof
+rook_o .hanging
+bishop_t *Captures knight_o *becomes bishop2
+bishop3_t *Captures bishop2 *becomes bishop4
+          .hanging
+
+b.gof
+bishop_o .hanging
+knight_t *Forks queen_o *and bishop *becomes knight2
+queen *SingleSafeDefendFor bishop *becomes queen2
+
+c.gof
+rook_o .hanging
+knight_t *Checks rook *becomes knight2
+         .notAttacked
+         .noSafeEvadableFor rook

@@ -105,7 +105,7 @@ ${puzzle_set[i].index} https://lichess.org/training/${puzzle_set[i].id}
 })
 
 
-it('only auto gen hanging rook check trap', () => {
+it('auto gen hanging rook check trap', () => {
 
     let p1 = ScriptRunner.parse(`
 rook_o .hanging
@@ -127,7 +127,7 @@ knight_t *Checks rook *becomes knight2
 
 
 
-it('only auto gen hanging rook check trap', () => {
+it('auto gen hanging rook check trap', () => {
 
 
     let p2 = ScriptRunner.parse(`
@@ -163,7 +163,7 @@ knight2 *Checks rook *becomes knight3
 })
 
 
-it('only auto gen hanging rook check trap full', () => {
+it('auto gen hanging rook check trap full', () => {
 
     let p1 = ScriptRunner.parse(`
 rook_o .hanging
@@ -205,5 +205,47 @@ knight2 *Checks rook *becomes knight3
         .notAttacked
         .noSafeEvadableFor rook
 `.trim())
+
+})
+
+
+it('auto gen', () => {
+
+    let list = [`
+rook_o .hanging
+bishop_t *Captures knight_o *becomes bishop2
+bishop3_t *Captures bishop2 *becomes bishop4
+          .hanging
+`.trim(),
+
+    `
+rook_o .hanging
+bishop_o .hanging
+knight_t *Forks queen_o *and bishop *becomes knight2
+queen *SingleSafeDefendFor bishop *becomes queen2
+`.trim(),
+
+    `
+rook_o .hanging
+knight_t *Checks rook *becomes knight2
+         .notAttacked
+         .noSafeEvadableFor rook
+`.trim()]
+
+
+
+
+    let agen = AutoGen.fromScripts(list)
+
+    let result = agen.genScriptsOnPosition(DebugParser.Position(`
+.kr..bnr
+ppp..ppp
+..q.p...
+...p....
+...P.B..
+P.NbPN..
+.P...PPP
+R.K.QB.R
+`.trim()))
 
 })

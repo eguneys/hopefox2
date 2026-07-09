@@ -19,6 +19,10 @@ export class ScriptRunner {
         return new ScriptRunner(parser.parse())
     }
 
+    static fromList(list: Instruction[]) {
+        return new ScriptRunner(list)
+    }
+
     runOnPosition(position: Position) {
 
         this.history.resetPosition(position)
