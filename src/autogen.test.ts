@@ -8,7 +8,8 @@ import { expect, it } from "vitest";
 //@ts-ignore
 import '../data/pin2.oof?raw'
 import { DebugParser } from "./types.js";
-import { AutoGen } from "./autogen.js";
+import { AutoGen, ScriptBinder } from "./autogen.js";
+import { ScriptRunner } from "./runner.js";
 
 let puzzles = read_csv(fs.readFileSync('data/pin2_knight_checks_queen.FullFalse.dbsrc.csv').toString())
 
@@ -106,22 +107,16 @@ ${puzzle_set[i].index} https://lichess.org/training/${puzzle_set[i].id}
 
 it('only auto gen hanging rook check trap', () => {
 
-
-    const ctr_knight_check = DebugParser.Position(`
-.kr..bnr
-ppp..ppp
-q...p...
-...pN...
-...P.B..
-P.NbP...
-.P...PPP
-R.K.QB.R
+    let p1 = ScriptRunner.parse(`
+rook_o .hanging
+knight_t *Checks rook *becomes knight2
+         .notAttacked
+         .noSafeEvadableFor rook
 `.trim())
 
-    const scripts = AutoGen.run(ctr_knight_check)
+    let scripts = ScriptBinder.bind(p1.instructions, []).writeList()
 
-    expect(scripts.length).toBe(1)
-    expect(scripts[0]).toBe(`
+    expect(scripts).toBe(`
 rook_o .hanging
 knight_t *Checks rook *becomes knight2
          .notAttacked
@@ -135,21 +130,26 @@ knight_t *Checks rook *becomes knight2
 it('only auto gen hanging rook check trap', () => {
 
 
-    const ctr_knight_check = DebugParser.Position(`
-.kr..bnr
-ppp..ppp
-..q.p...
-...p....
-...P.B..
-P.NbPN..
-.P...PPP
-R.K.QB.R
+    let p2 = ScriptRunner.parse(`
+rook_o .hanging
+bishop_o .hanging
+knight_t *Forks queen_o *and bishop *becomes knight2
+queen *SingleSafeDefendFor bishop *becomes queen2
 `.trim())
 
-    const scripts = AutoGen.run(ctr_knight_check)
+    let p3 = ScriptRunner.parse(`
+rook_o .hanging
+knight_t *Checks rook *becomes knight2
+         .notAttacked
+         .noSafeEvadableFor rook
+`.trim())
 
-    expect(scripts.length).toBe(1)
-    expect(scripts[0]).toBe(`
+
+    let scripts = ScriptBinder.bind(p2.instructions, p3.instructions).writeList()
+
+
+
+    expect(scripts).toBe(`
 rook_o .hanging
 bishop_o .hanging
 knight_t *Forks queen_o *and bishop *becomes knight2
@@ -165,22 +165,34 @@ knight2 *Checks rook *becomes knight3
 
 it('only auto gen hanging rook check trap full', () => {
 
-
-    const ctr_knight_check = DebugParser.Position(`
-.kr..bnr
-ppp..ppp
-..q.p.b.
-...p....
-...P.B..
-P.NnPN..
-.P...PPP
-R.K.QB.R
+    let p1 = ScriptRunner.parse(`
+rook_o .hanging
+bishop_t *Captures knight_o *becomes bishop2
+bishop3_t *Captures bishop2 *becomes bishop4
+          .hanging
 `.trim())
 
-    const scripts = AutoGen.run(ctr_knight_check)
+    let p2 = ScriptRunner.parse(`
+rook_o .hanging
+bishop_o .hanging
+knight_t *Forks queen_o *and bishop *becomes knight2
+queen *SingleSafeDefendFor bishop *becomes queen2
+`.trim())
 
-    expect(scripts.length).toBe(1)
-    expect(scripts[0]).toBe(`
+    let p3 = ScriptRunner.parse(`
+rook_o .hanging
+knight_t *Checks rook *becomes knight2
+         .notAttacked
+         .noSafeEvadableFor rook
+`.trim())
+
+
+    let p12 = ScriptBinder.bind(p1.instructions, p2.instructions)
+
+    let p123 = ScriptBinder.bind(p12.list, p3.instructions)
+    let scripts = p123.writeList()
+
+    expect(scripts).toBe(`
 rook_o .hanging
 bishop_t *Captures knight_o *becomes bishop2
 bishop3_t *Captures bishop2 *becomes bishop4
