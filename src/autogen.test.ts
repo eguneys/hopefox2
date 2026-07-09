@@ -104,7 +104,7 @@ ${puzzle_set[i].index} https://lichess.org/training/${puzzle_set[i].id}
 })
 
 
-it('auto gen hanging rook check trap', () => {
+it('only auto gen hanging rook check trap', () => {
 
 
     const ctr_knight_check = DebugParser.Position(`
@@ -154,7 +154,41 @@ rook_o .hanging
 bishop_o .hanging
 knight_t *Forks queen_o *and bishop *becomes knight2
 queen *SingleSafeDefendFor bishop *becomes queen2
-rook .hanging
+rook_o .hanging
+knight2 *Checks rook *becomes knight3
+        .notAttacked
+        .noSafeEvadableFor rook
+`.trim())
+
+})
+
+
+it('only auto gen hanging rook check trap full', () => {
+
+
+    const ctr_knight_check = DebugParser.Position(`
+.kr..bnr
+ppp..ppp
+..q.p.b.
+...p....
+...P.B..
+P.NnPN..
+.P...PPP
+R.K.QB.R
+`.trim())
+
+    const scripts = AutoGen.run(ctr_knight_check)
+
+    expect(scripts.length).toBe(1)
+    expect(scripts[0]).toBe(`
+rook_o .hanging
+bishop_t *Captures knight_o *becomes bishop2
+bishop3_t *Captures bishop2 *becomes bishop4
+          .hanging
+rook_o .hanging
+knight_t *Forks queen_o *and bishop *becomes knight2
+queen *SingleSafeDefendFor bishop *becomes queen2
+rook_o .hanging
 knight2 *Checks rook *becomes knight3
         .notAttacked
         .noSafeEvadableFor rook

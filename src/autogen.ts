@@ -6,11 +6,16 @@ export class ScriptBinder {
     static bind = (a: Instruction[], b: Instruction[]) => {
 
         function follow_binding(orig: Symbol, i: Instruction) {
-            if (ScriptBinder.SymbolEquals(orig, i.from.symbol!)) {
+            if (ScriptBinder.SymbolOrigEquals(orig, i)) {
                 if (i.becomes !== undefined) {
                     return i.becomes!.symbol!
                 } else {
                     return i.from.symbol!
+                }
+            }
+            if (i.action.symbol!.name === 'Captures') {
+                if (ScriptBinder.SymbolEquals(orig, i.to!.symbol!)) {
+                    return undefined
                 }
             }
             return orig
@@ -25,13 +30,17 @@ export class ScriptBinder {
         let replaces: [Symbol, Symbol][] = []
 
         for (let bb of b) {
-
-            let orig = bb.from.symbol!
+            let orig = bb.from.symbol
             for (let rr of res) {
-                orig = follow_binding(orig, rr)
+                let dest = follow_binding(orig!, rr)
+                if (dest) {
+                    orig = dest
+                } else {
+                    break
+                }
             }
 
-            if (orig !== bb.from.symbol) {
+            if (orig && !ScriptBinder.SymbolEquals(orig, bb.from.symbol!)) {
                 replaces.push([bb.from.symbol!, ScriptBinder.orig_symbol(orig)])
                 if (bb.becomes) {
                     let bump = bb.becomes.symbol!
@@ -48,15 +57,19 @@ export class ScriptBinder {
                         break
                     }
                 }
+            } else {
             }
         }
 
-        function replace_instruction(i: Instruction, replaces: [Symbol, Symbol][]) {
+        function replace_instruction(oi: Instruction, replaces: [Symbol, Symbol][]) {
+            let i = structuredClone(oi)
             let from_symbol = i.from.symbol!
             let becomes_symbol = i.becomes?.symbol
             for (let r of replaces) {
+                let off = ScriptBinder.symbol(i.from.symbol!).length - ScriptBinder.symbol(r[1]).length
                 if (ScriptBinder.SymbolEquals(from_symbol, r[0])) {
                     i.from.symbol = r[1]
+                    i.action.begin_column -= off
                 }
                 if (becomes_symbol) {
                     if (ScriptBinder.SymbolEquals(becomes_symbol!, r[0])) {
@@ -69,7 +82,14 @@ export class ScriptBinder {
         }
 
         for (let bb of b) {
-            res.push(replace_instruction(bb, replaces))
+            let i = replace_instruction(bb, replaces)
+            let last_becomes = res.length - res.slice(0).reverse().findIndex(_ => _.becomes)
+
+            if (res.slice(last_becomes).find(ei => ScriptBinder.InstructionEquals(ei, i))) {
+                continue
+            }
+
+            res.push(i)
         }
 
 
@@ -109,17 +129,24 @@ export class ScriptBinder {
         if (this.list[i].becomes) {
             return this.becomes(i)
         } else {
-            return this.filter(i, this.list[i - 1])
+            let last_becomes = this.list[i - 1]
+            for (let j = i - 1; j >= 0; j--) {
+                if (this.list[j].becomes !== undefined) {
+                    last_becomes = this.list[j]
+                    break
+                }
+            }
+            return this.filter(i, last_becomes)
         }
     }
 
     becomes(iref: number) {
         let i = this.list[iref]
-        let from = this.symbol(i.from.symbol!)
-        let action = this.action(i.action.symbol!)
-        let to = i.to ? ` ${this.symbol(i.to.symbol!)}` : ''
-        let and = i.and ? ` *and ${this.symbol(i.and.symbol!)}` : ''
-        let becomes = this.symbol(i.becomes!.symbol!)
+        let from = ScriptBinder.symbol(i.from.symbol!)
+        let action = ScriptBinder.action(i.action.symbol!)
+        let to = i.to ? ` ${ScriptBinder.symbol(i.to.symbol!)}` : ''
+        let and = i.and ? ` *and ${ScriptBinder.symbol(i.and.symbol!)}` : ''
+        let becomes = ScriptBinder.symbol(i.becomes!.symbol!)
         return `${from} *${action}${to}${and} *becomes ${becomes}`
     }
 
@@ -130,34 +157,54 @@ export class ScriptBinder {
         if (previous !== undefined) {
             if (previous.becomes !== undefined) {
                 if (ScriptBinder.SymbolEquals(previous.becomes.symbol!, i.from.symbol!)) {
-                    indent = previous.action.begin_column - 1
+                    indent = previous.action.begin_column - 2
                 }
             } else {
                 if (ScriptBinder.SymbolEquals(previous.from.symbol!, i.from.symbol!)) {
-                    indent = previous.action.begin_column - 1
+                    indent = previous.action.begin_column - 2
                 }
             }
         }
 
-        let from = this.symbol(i.from.symbol!)
-        let action = this.action(i.action.symbol!)
-        let to = i.to ? ` ${this.symbol(i.to.symbol!)}` : ''
+        let from = ScriptBinder.symbol(i.from.symbol!)
+        let action = ScriptBinder.action(i.action.symbol!)
+        let to = i.to ? ` ${ScriptBinder.symbol(i.to.symbol!)}` : ''
 
-        return indent > 0 ? `${' '.repeat(indent - 2)}.${action}${to}` : `${from} .${action}${to}`
+        return indent > 0 ? `${' '.repeat(indent)}.${action}${to}` : `${from} .${action}${to}`
     }
 
-    action(symbol: Symbol) {
+    static action(symbol: Symbol) {
         let props = symbol.props.length > 0 ? `_${symbol.props}` : ''
         return `${symbol.name}${symbol.id}${props}`
     }
 
-    symbol(symbol: Symbol) {
+    static symbol(symbol: Symbol) {
         let props = symbol.props.length > 0 ? `_${symbol.props}` : ''
         return `${symbol.name}${symbol.id}${props}`
     }
 
     static SymbolEquals = (a: Symbol, b: Symbol) => {
         return (a.name === b.name && a.id === b.id && a.props === b.props)
+    }
+
+    static SymbolOrigEquals = (a: Symbol, i: Instruction) => {
+        if (a.name === i.from.symbol!.name) {
+            return true
+        }
+        return false
+    }
+
+    static InstructionEquals = (a: Instruction, b: Instruction) => {
+        if (a.becomes === undefined && b.becomes === undefined) {
+            if (ScriptBinder.SymbolEquals(a.action.symbol!, b.action.symbol!)) {
+
+                if (ScriptBinder.SymbolEquals(a.from.symbol!, b.from.symbol!)) {
+                    return true
+                }
+            }
+        }
+
+        return false
     }
 }
 
@@ -201,12 +248,26 @@ knight_t *Checks rook *becomes knight2
         let p2 = ScriptRunner.parse(use2)
         let p3 = ScriptRunner.parse(use3)
 
-        //let { moves, preview } = p2.runOnPosition(this.position)
-        //console.log(preview)
+
 
         let p12 = ScriptBinder.bind(p2.instructions, p1.instructions)
 
-        return [p12.writeList()]
+        let p23 = ScriptBinder.bind(p3.instructions, p2.instructions)
+        let p123 = ScriptBinder.bind(p23.list, p1.instructions)
+
+        let p1_res = p1.runOnPosition(this.position)
+
+        if (p1_res.moves.getLinesWith([]).filter(_ => _.length > 0).length > 0) {
+            return [ScriptBinder.bind(p1.instructions, []).writeList()]
+        }
+
+        let p12_res = ScriptRunner.parse(p12.writeList()).runOnPosition(this.position)
+
+        if (p12_res.moves.getLinesWith([]).filter(_ => _.length > 0).length > 0) {
+            return [p12.writeList()]
+        }
+
+        return [p123.writeList()]
     }
 
 }
