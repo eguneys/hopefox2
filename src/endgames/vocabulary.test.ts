@@ -46,7 +46,7 @@ it('kingEvadeSafe', () => {
 })
 
 
-it('isCheck only', () => {
+it('isCheck', () => {
     let position = DebugParser.Position(`
 ........
 ........

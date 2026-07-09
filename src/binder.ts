@@ -88,6 +88,9 @@ export class ScriptBinder {
 
         let replace_combinations = pickCombinations(replace_groups)
 
+        if (replace_combinations.length === 0) {
+            return [[...a, ...b]]
+        }
 
         let result_sets: Instruction[][] = []
         for (let combination of replace_combinations) {

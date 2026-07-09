@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { ScriptRunner } from "./runner.js";
 import { ScriptBinder, ScriptWriter } from "./binder.js";
 
-it('only basic usage', () => {
+it('basic usage', () => {
 
     const a_gof = `
 rook_o .hanging
