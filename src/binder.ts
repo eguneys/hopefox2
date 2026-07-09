@@ -9,6 +9,7 @@ export class ScriptBinder {
                 return
             }
             all_symbols.push(symbol)
+            living_symbols.push(symbol)
         }
         let living_symbols: Symbol[] = []
         for (let ai of a) {
@@ -22,11 +23,6 @@ export class ScriptBinder {
             }
             if (ai.becomes) {
                 living_symbols = living_symbols.filter(_ => !SymbolEqualsId(_, ai.from!.symbol!))
-                living_symbols.push(ai.becomes.symbol!)
-            } else {
-                if (!living_symbols.find(_ => SymbolEqualsId(_, ai.from.symbol!))) {
-                    living_symbols.push(ai.from.symbol!)
-                }
             }
         }
 
@@ -76,7 +72,6 @@ export class ScriptBinder {
             if (bb.to) replaces_push(bb.to.symbol!)
             if (bb.and) replaces_push(bb.and.symbol!)
         }
-
 
         let replace_groups: number[][] = []
         for (let replace of replaces) {
@@ -155,6 +150,8 @@ export class ScriptBinder {
                     let new_from = new_replaced_symbol(b[i].from.symbol!)
                     if (new_from) {
                         b_result[i].from.symbol = new_from
+                        let off = b_result[i].from.end_column - (b_result[i].from.begin_column + ScriptWriter.writeSymbol(new_from).length)
+                        b_result[i].action.begin_column -= off
                         first_replace = false
                     }
                     let new_action = new_replaced_symbol(b[i].action.symbol!)
@@ -254,7 +251,7 @@ export class ScriptWriter {
             if (i > 0) result += '\n'
             let item = this.list[i]
             if (item.becomes === undefined) {
-                if (last_becomes) {
+                if (last_becomes !== undefined) {
                     if (SymbolEqualsId(this.list[last_becomes].becomes!.symbol!, item.from.symbol!)) {
                         result += this.writeBeginDot(i, last_becomes)
                         continue

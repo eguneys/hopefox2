@@ -6,12 +6,15 @@ import { BestLine } from "./bestlines.js";
 import { DebugMove } from "./debug.js";
 import { AutoGen } from "./autogen.js";
 
+//@ts-ignore
+import '../data/pin3.oof?raw'
+
 let puzzles = read_csv(fs.readFileSync('data/pin2_knight_checks_queen.FullFalse.dbsrc.csv').toString())
 
 let pin3 = read_oof(fs.readFileSync('data/pin3.oof').toString().trim(), puzzles)
 
-it('only basic usage', () => {
-    let puzzle_set = puzzles.slice(37)
+it('basic usage', () => {
+    let puzzle_set = puzzles.slice(35, 36)
 
     if (pin3.length === 0) {
         return

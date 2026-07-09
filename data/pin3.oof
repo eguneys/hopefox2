@@ -14,3 +14,16 @@ rook_o .hanging
 knight_t *Checks rook *becomes knight2
          .notAttacked
          .noSafeEvadableFor rook
+
+d.gof
+pawn_o .onlyDefendedBy pawn2_o
+bishop_t .eyesThrough king_o .through pawn2_o
+queen_t *Captures pawn *becomes queen2
+king_t *SingleSafeEvadeTo sq *becomes king2
+
+e.gof
+queen_t *Captures pawn_o *becomes queen2
+        .Checks king_t
+        .noSafeEvadableFor king
+        .noSafeCapturable
+        .isUnblockableFor king

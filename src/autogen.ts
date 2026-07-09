@@ -51,6 +51,7 @@ export class AutoGen {
                 indexes.push(list)
             }
         }
+        console.log(result[0])
         return { lists: result, indexes }
     }
 
