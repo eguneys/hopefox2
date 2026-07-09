@@ -13,8 +13,8 @@ let puzzles = read_csv(fs.readFileSync('data/pin2_knight_checks_queen.FullFalse.
 
 let pin3 = read_oof(fs.readFileSync('data/pin3.oof').toString().trim(), puzzles)
 
-it('basic usage', () => {
-    let puzzle_set = puzzles.slice(35, 36)
+it('only basic usage', { timeout: 1000000 }, () => {
+    let puzzle_set = puzzles.slice(0)
 
     if (pin3.length === 0) {
         return
