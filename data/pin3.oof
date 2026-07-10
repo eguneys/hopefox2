@@ -27,3 +27,28 @@ queen_t *Captures pawn_o *becomes queen2
         .noSafeEvadableFor king
         .noSafeCapturable
         .isUnblockableFor king
+
+f.gof
+bishop_t .eyesThrough king_o .through pawn4_o
+queen_t *Captures pawn_o *becomes queen2
+        .Checks king_t
+        .isUnblockableFor king
+pawn2_t *Captures queen2 *becomes pawn3
+        .onlyDefendedBy pawn4
+
+g.gof
+rook_t *Captures pawn_o *becomes rook2
+       .Checks king_t
+king *SingleSafeEvadeTo sq *becomes king2
+
+h.gof
+rook_t *Checks king_o *becomes rook2
+       .notAttacked
+       .noSafeEvadableFor king
+knight_t *Blocks Check *becomes knight2
+
+l.gof
+rook_t *Captures knight_o *becomes rook2
+       .Checks king_t
+       .noSafeCapturable
+       .noSafeEvadableFor king
