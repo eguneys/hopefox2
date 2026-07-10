@@ -24,14 +24,6 @@ export class AutoGen {
             for (let i = 0; i < this.runners.length; i++) {
 
                 let ilist = ScriptBinder.bindInstructions(instructions, this.runners[i].instructions)
-                if (script_list.length === 3 && i === 8) {
-                    console.log(ScriptWriter.write(instructions))
-                    console.log('')
-                    console.log(ScriptWriter.write(ilist[7]))
-                    console.log('')
-                    console.log('')
-                    console.log('')
-                }
                 for (let list of ilist) {
                     let runner = ScriptRunner.fromList(list)
                     let { moves } = runner.runOnPosition(position)
@@ -59,7 +51,6 @@ export class AutoGen {
                 indexes.push(list)
             }
         }
-        console.log(indexes)
         return { lists: result, indexes }
     }
 
